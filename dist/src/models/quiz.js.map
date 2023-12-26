@@ -1,0 +1,1 @@
+{"version":3,"file":"quiz.js","sourceRoot":"","sources":["../../../src/models/quiz.ts"],"names":[],"mappings":";;;AAQA,MAAa,IAAI;IAKf;;;;OAIG;IACH,YAAY,OAAe,EAAE,YAAoB,EAAE,OAAiB;QAClE,IAAI,CAAC,OAAO,GAAG,OAAO,CAAC;QACvB,IAAI,CAAC,YAAY,GAAG,YAAY,CAAC;QACjC,IAAI,CAAC,OAAO,GAAG,OAAO,CAAC;IACzB,CAAC;CACF;AAfD,oBAeC;AAED,MAAa,cAAc;CAI1B;AAJD,wCAIC"}

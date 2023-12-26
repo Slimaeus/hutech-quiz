@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Answer {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  content    String
+  isCorrect  Boolean
+  quiz   Quiz @relation(fields: [quizId], references: [id])
+  quizId String   @unique @db.ObjectId
+}
+
+model Quiz {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  content      String
+  explaination String
+  answers      Answer[]
+}
