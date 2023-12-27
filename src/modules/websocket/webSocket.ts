@@ -1,6 +1,8 @@
 import { Server, Socket } from "socket.io";
 import http = require("http");
 import SocketHandler from "./socketHandler";
+import jwt from "jsonwebtoken";
+import { Account } from "../../models/account";
 
 const WEBSOCKET_CORS = {
   origin: "*",
@@ -25,7 +27,11 @@ class Websocket extends Server {
   }
 
   public initializeHandlers(
-    socketHandlers: Array<{ path: string; handler: SocketHandler }>
+    socketHandlers: Array<{
+      path: string;
+      handler: SocketHandler;
+      isAuthorized?: boolean;
+    }>
   ) {
     socketHandlers.forEach((element) => {
       let namespace = Websocket.io.of(element.path, (socket: Socket) => {
@@ -33,6 +39,38 @@ class Websocket extends Server {
       });
 
       if (element.handler.middlewareImplementation) {
+        if (element.isAuthorized)
+          namespace.use((socket, next) => {
+            try {
+              const token = socket.handshake.query["access_token"];
+              let tokenStr = "";
+              if (!token) return next();
+              if (
+                Array.isArray(token) &&
+                token.every((item) => typeof item === "string")
+              ) {
+                tokenStr = token.join("");
+              }
+              tokenStr = token as string;
+              console.info(`Token: ${tokenStr}`);
+              const decoded = jwt.verify(tokenStr, process.env.TOKEN_KEY, {
+                algorithms: ["HS256"],
+              });
+
+              console.log(`Decoded: `);
+              console.log(decoded);
+
+              socket["user"] = Account.fromJson(decoded as jwt.JwtPayload);
+
+              console.log(`User: `);
+              console.log(socket["user"]);
+
+              return next();
+            } catch (error) {
+              console.error(error);
+              return next(error);
+            }
+          });
         namespace.use(element.handler.middlewareImplementation);
       }
     });

@@ -59,9 +59,20 @@ const routingControllerOptions = {
 };
 const app = (0, routing_controllers_1.createExpressServer)(routingControllerOptions);
 const httpServer = (0, http_1.createServer)(app);
-const io = webSocket_1.default.getInstance(httpServer);
 httpServer.listen(port, () => {
     console.log(`This is working in port ${port}`);
+});
+const io = webSocket_1.default.getInstance(httpServer);
+io.use((socket, next) => {
+    try {
+        console.log("Hello");
+        const token = socket.handshake.auth.token;
+        console.info(`Token: ${token}`);
+        return next();
+    }
+    catch (error) {
+        console.error(error);
+    }
 });
 io.initializeHandlers([
     { path: '/hubs/quizzes', handler: new quizzes_socket_1.default() }
