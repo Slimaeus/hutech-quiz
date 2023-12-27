@@ -25,7 +25,7 @@ const routingControllerOptions = {
     controllers: [`${__dirname}/http/*.controller.*`],
     validation: true,
     classTransformer: true,
-    cors: true,
+    cors: false,
     defaultErrorHandler: true,
     authorizationChecker: (action, roles) => __awaiter(void 0, void 0, void 0, function* () {
         const authorizationHeader = action.request.headers["authorization"];
@@ -66,8 +66,4 @@ httpServer.listen(port, () => {
 io.initializeHandlers([
     { path: '/hubs/quizzes', handler: new quizzes_socket_1.default() }
 ]);
-httpServer.listen(port, () => {
-    console.log(`${__dirname}/modules/http/*.controller.*`);
-    console.log(`This is working in port ${port}`);
-});
 //# sourceMappingURL=server.js.map

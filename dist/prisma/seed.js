@@ -15,36 +15,34 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield prisma.answer.deleteMany();
         yield prisma.quiz.deleteMany();
-        const quiz = yield prisma.quiz.create({
-            data: {
-                content: "How old are you?",
-                explaination: "Your age",
-            },
-        });
         const answers = [
             {
                 content: "19",
                 isCorrect: false,
-                quizId: quiz.id
             },
             {
                 content: "20",
                 isCorrect: false,
-                quizId: quiz.id
             },
             {
                 content: "21",
                 isCorrect: true,
-                quizId: quiz.id
             },
             {
                 content: "22",
                 isCorrect: false,
-                quizId: quiz.id
             },
         ];
-        const createResult = yield prisma.answer.createMany({
-            data: answers,
+        const quiz = yield prisma.quiz.create({
+            data: {
+                content: "How old are you?",
+                explaination: "Your age",
+                answers: {
+                    createMany: {
+                        data: answers
+                    }
+                }
+            },
         });
         const answer = yield prisma.answer.create({
             data: {

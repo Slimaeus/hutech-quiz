@@ -16,6 +16,7 @@ model Answer {
   isCorrect  Boolean
   quiz   Quiz @relation(fields: [quizId], references: [id])
   quizId String   @unique @db.ObjectId
+  records      Record[]
 }
 
 model Quiz {
@@ -23,4 +24,18 @@ model Quiz {
   content      String
   explaination String
   answers      Answer[]
+  records      Record[]
+}
+
+model Room {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+model Record {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  quiz   Quiz @relation(fields: [quizId], references: [id])
+  quizId String   @unique @db.ObjectId
+  answer   Answer @relation(fields: [answerId], references: [id])
+  answerId String   @unique @db.ObjectId
+  userId String
 }
