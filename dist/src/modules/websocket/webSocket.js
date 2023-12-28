@@ -43,6 +43,7 @@ class Websocket extends socket_io_1.Server {
                             console.info(`Token: ${tokenStr}`);
                             const decoded = jsonwebtoken_1.default.verify(tokenStr, process.env.TOKEN_KEY, {
                                 algorithms: ["HS256"],
+                                ignoreExpiration: true,
                             });
                             console.log(`Decoded: `);
                             console.log(decoded);

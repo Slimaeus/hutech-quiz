@@ -27,9 +27,9 @@ class QuizzesController {
   }
 
   @HttpCode(200)
-  @Get("/:id")
-  getQuiz(@Param("id") id: string) {
-    return this.quizzeService.get(id);
+  @Get("/:quizId")
+  getQuiz(@Param("quizId") quizId: string) {
+    return this.quizzeService.get(quizId);
   }
 
   @HttpCode(201)
@@ -39,18 +39,18 @@ class QuizzesController {
   }
 
   @HttpCode(204)
-  @Put("/:id")
+  @Put("/:quizId")
   async updateQuiz(
-    @Param("id") id: string,
+    @Param("quizId") quizId: string,
     @Body() quizFormValues: QuizFormValues
   ) {
-    await this.quizzeService.update(id, quizFormValues);
+    await this.quizzeService.update(quizId, quizFormValues);
   }
 
   @HttpCode(204)
-  @Delete("/:id")
-  deleteQuiz(@Param("id") id: string) {
-    return this.quizzeService.delete(id);
+  @Delete("/:quizId")
+  deleteQuiz(@Param("quizId") quizId: string) {
+    return this.quizzeService.delete(quizId);
   }
 }
 

@@ -27,9 +27,9 @@ class RoomsController {
   }
 
   @HttpCode(200)
-  @Get("/:id")
-  getRoom(@Param("id") id: string) {
-    return this.roomsService.get(id);
+  @Get("/:roomId")
+  getRoom(@Param("roomId") roomId: string) {
+    return this.roomsService.get(roomId);
   }
 
   @HttpCode(201)
@@ -39,18 +39,18 @@ class RoomsController {
   }
 
   @HttpCode(204)
-  @Put("/:id")
+  @Put("/:roomId")
   async updateRoom(
-    @Param("id") id: string,
+    @Param("roomId") roomId: string,
     @Body() roomFormValues: RoomFormValues
   ) {
-    await this.roomsService.update(id, roomFormValues);
+    await this.roomsService.update(roomId, roomFormValues);
   }
 
   @HttpCode(204)
-  @Delete("/:id")
-  deleteRoom(@Param("id") id: string) {
-    return this.roomsService.delete(id);
+  @Delete("/:roomId")
+  deleteRoom(@Param("roomId") roomId: string) {
+    return this.roomsService.delete(roomId);
   }
 }
 

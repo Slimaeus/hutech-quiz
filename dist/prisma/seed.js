@@ -15,6 +15,8 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield prisma.answer.deleteMany();
         yield prisma.quiz.deleteMany();
+        yield prisma.quizCollection.deleteMany();
+        yield prisma.quizToQuizCollection.deleteMany();
         const answers = [
             {
                 content: "19",
@@ -37,9 +39,20 @@ function main() {
             data: {
                 content: "How old are you?",
                 explaination: "Your age",
+                score: 1,
                 answers: {
                     createMany: {
                         data: answers
+                    }
+                }
+            },
+        });
+        const quizCollection = yield prisma.quizCollection.create({
+            data: {
+                name: "Collection 1",
+                quizzes: {
+                    create: {
+                        quizId: quiz.id,
                     }
                 }
             },
@@ -51,7 +64,8 @@ function main() {
                 quiz: {
                     create: {
                         content: "Are you robot?",
-                        explaination: "Verify!"
+                        explaination: "Verify!",
+                        score: 1
                     }
                 }
             }

@@ -15,6 +15,10 @@ class Quiz {
 }
 exports.Quiz = Quiz;
 class QuizFormValues {
+    constructor() {
+        this.score = 0;
+        // answers: Answer[];
+    }
 }
 exports.QuizFormValues = QuizFormValues;
 //# sourceMappingURL=quiz.js.map

@@ -7,7 +7,7 @@ class QuizzesSocket {
         console.info("Quizzes namespace is working...");
         socket.emit(sockets_events_1.SocketsEvents.STARTED, "Quizzes namespace is working...");
         const user = socket["user"];
-        socket.emit("load_id", user.id);
+        socket.emit("load_user", user);
     }
     middlewareImplementation(socket, next) {
         socket
