@@ -11,31 +11,57 @@ datasource db {
 }
 
 model Answer {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  content    String
-  isCorrect  Boolean
-  quiz   Quiz @relation(fields: [quizId], references: [id])
-  quizId String   @unique @db.ObjectId
-  records      Record[]
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  isCorrect Boolean
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  quizId    String   @unique @db.ObjectId
+  records   Record[]
 }
 
 model Quiz {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String                 @id @default(auto()) @map("_id") @db.ObjectId
   content      String
   explaination String
+  score        Int
   answers      Answer[]
   records      Record[]
+  collections  QuizToQuizCollection[]
+}
+
+model QuizCollection {
+  id      String                 @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  quizzes QuizToQuizCollection[]
+  Room    Room?
+}
+
+model QuizToQuizCollection {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  quizId           String         @unique @db.ObjectId
+  quiz             Quiz           @relation(fields: [quizId], references: [id])
+  quizCollectionId String         @unique @db.ObjectId
+  quizCollection   QuizCollection @relation(fields: [quizCollectionId], references: [id])
+  rooms            Room[]
+
+  @@unique([quizId, quizCollectionId])
 }
 
 model Room {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  quizCollectionId       String                @unique @db.ObjectId
+  quizCollection         QuizCollection        @relation(fields: [quizCollectionId], references: [id])
+  userIds                String[]
+  QuizToQuizCollection   QuizToQuizCollection? @relation(fields: [quizToQuizCollectionId], references: [id])
+  quizToQuizCollectionId String?               @db.ObjectId
 }
 
 model Record {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  quiz   Quiz @relation(fields: [quizId], references: [id])
-  quizId String   @unique @db.ObjectId
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  quiz     Quiz   @relation(fields: [quizId], references: [id])
+  quizId   String @unique @db.ObjectId
   answer   Answer @relation(fields: [answerId], references: [id])
-  answerId String   @unique @db.ObjectId
-  userId String
+  answerId String @unique @db.ObjectId
+  userId   String
 }

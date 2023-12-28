@@ -5,6 +5,9 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.answer.deleteMany();
   await prisma.quiz.deleteMany();
+  await prisma.quizCollection.deleteMany();
+  await prisma.quizToQuizCollection.deleteMany();
+  
   const answers = [
     {
       content: "19",
@@ -27,6 +30,7 @@ async function main() {
     data: {
       content: "How old are you?",
       explaination: "Your age",
+      score: 1,
       answers: {
         createMany: {
           data: answers
@@ -34,7 +38,17 @@ async function main() {
       }
     },
   });
-  
+
+  const quizCollection = await prisma.quizCollection.create({
+    data: {
+      name: "Collection 1",
+      quizzes: {
+        create: {
+          quizId: quiz.id,
+        }
+      }
+    },
+  });
 
   const answer = await prisma.answer.create({
     data: 
@@ -44,7 +58,8 @@ async function main() {
       quiz: {
         create: {
           content: "Are you robot?",
-          explaination: "Verify!"
+          explaination: "Verify!",
+          score: 1
         }
       }
     }

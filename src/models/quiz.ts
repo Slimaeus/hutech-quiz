@@ -26,5 +26,6 @@ export class Quiz {
 export class QuizFormValues {
   content: string;
   explaination: string;
+  score: number = 0;
   // answers: Answer[];
 }
