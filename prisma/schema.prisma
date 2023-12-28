@@ -11,12 +11,15 @@ datasource db {
 }
 
 model Answer {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
   content   String
   isCorrect Boolean
-  quiz      Quiz     @relation(fields: [quizId], references: [id])
-  quizId    String   @unique @db.ObjectId
-  records   Record[]
+
+  quizId String @unique @db.ObjectId
+  quiz   Quiz   @relation(fields: [quizId], references: [id])
+
+  records Record[]
 }
 
 model Quiz {
@@ -33,7 +36,7 @@ model QuizCollection {
   id      String                 @id @default(auto()) @map("_id") @db.ObjectId
   name    String
   quizzes QuizToQuizCollection[]
-  Room    Room?
+  Room    Room[]
 }
 
 model QuizToQuizCollection {
@@ -42,26 +45,23 @@ model QuizToQuizCollection {
   quiz             Quiz           @relation(fields: [quizId], references: [id])
   quizCollectionId String         @unique @db.ObjectId
   quizCollection   QuizCollection @relation(fields: [quizCollectionId], references: [id])
-  rooms            Room[]
 
   @@unique([quizId, quizCollectionId])
 }
 
 model Room {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  quizCollectionId       String                @unique @db.ObjectId
-  quizCollection         QuizCollection        @relation(fields: [quizCollectionId], references: [id])
-  userIds                String[]
-  QuizToQuizCollection   QuizToQuizCollection? @relation(fields: [quizToQuizCollectionId], references: [id])
-  quizToQuizCollectionId String?               @db.ObjectId
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  code             String
+  userIds          String[]        @db.ObjectId
+  quizCollectionId String?         @unique @db.ObjectId
+  quizCollection   QuizCollection? @relation(fields: [quizCollectionId], references: [id])
 }
 
 model Record {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
-  quiz     Quiz   @relation(fields: [quizId], references: [id])
-  quizId   String @unique @db.ObjectId
-  answer   Answer @relation(fields: [answerId], references: [id])
-  answerId String @unique @db.ObjectId
   userId   String
+  quizId   String @unique @db.ObjectId
+  quiz     Quiz   @relation(fields: [quizId], references: [id])
+  answerId String @unique @db.ObjectId
+  answer   Answer @relation(fields: [answerId], references: [id])
 }

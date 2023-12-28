@@ -10,8 +10,6 @@ import {
 } from "routing-controllers";
 import Websocket from "./websocket/webSocket";
 import QuizzesSocket from "./websocket/quizzes.socket";
-import { Socket } from "socket.io";
-import { NextFunction } from "express";
 
 const port = process.env.APP_PORT || 3000;
 
@@ -65,19 +63,6 @@ httpServer.listen(port, () => {
 });
 
 const io = Websocket.getInstance(httpServer);
-
-// io.use((socket, next) => {
-//   try {
-//     console.log("Hello")
-//   const token = socket.handshake.auth.token;
-//   console.info(`Token: ${token}`)
-  
-//   return next();
-//   } catch (error) {
-//     console.error(error)
-//     return next(error);
-//   }
-// })
 
 io.initializeHandlers([
   { path: '/hubs/quizzes', handler: new QuizzesSocket(), isAuthorized: true }

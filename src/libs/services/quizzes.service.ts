@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { QuizFormValues } from "../../models/quiz";
 
 export class QuizzesService {
   prisma: PrismaClient = new PrismaClient();
@@ -7,7 +8,7 @@ export class QuizzesService {
     return this.prisma.quiz.findMany();
   }
 
-  get(id: any) {
+  get(id: string) {
     return this.prisma.quiz.findFirst({
       where: {
         id: id,
@@ -15,13 +16,13 @@ export class QuizzesService {
     });
   }
 
-  create(data: any) {
+  create(data: QuizFormValues) {
     return this.prisma.quiz.create({
       data: data,
     });
   }
 
-  async update(id: any, data) {
+  async update(id: string, data: QuizFormValues) {
     await this.prisma.quiz.update({
       where: {
         id: id,
@@ -30,7 +31,7 @@ export class QuizzesService {
     });
   }
 
-  delete(id: any) {
+  delete(id: string) {
     return this.prisma.quiz.delete({
       where: {
         id: id,
