@@ -33,19 +33,19 @@ let RoomsController = class RoomsController {
     getRooms() {
         return this.roomsService.getMany();
     }
-    getRoom(id) {
-        return this.roomsService.get(id);
+    getRoom(roomId) {
+        return this.roomsService.get(roomId);
     }
     insertRoom(roomFormValues) {
         return this.roomsService.create(roomFormValues);
     }
-    updateRoom(id, roomFormValues) {
+    updateRoom(roomId, roomFormValues) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.roomsService.update(id, roomFormValues);
+            yield this.roomsService.update(roomId, roomFormValues);
         });
     }
-    deleteRoom(id) {
-        return this.roomsService.delete(id);
+    deleteRoom(roomId) {
+        return this.roomsService.delete(roomId);
     }
 };
 __decorate([
@@ -58,8 +58,8 @@ __decorate([
 ], RoomsController.prototype, "getRooms", null);
 __decorate([
     (0, routing_controllers_1.HttpCode)(200),
-    (0, routing_controllers_1.Get)("/:id"),
-    __param(0, (0, routing_controllers_1.Param)("id")),
+    (0, routing_controllers_1.Get)("/:roomId"),
+    __param(0, (0, routing_controllers_1.Param)("roomId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
@@ -74,8 +74,8 @@ __decorate([
 ], RoomsController.prototype, "insertRoom", null);
 __decorate([
     (0, routing_controllers_1.HttpCode)(204),
-    (0, routing_controllers_1.Put)("/:id"),
-    __param(0, (0, routing_controllers_1.Param)("id")),
+    (0, routing_controllers_1.Put)("/:roomId"),
+    __param(0, (0, routing_controllers_1.Param)("roomId")),
     __param(1, (0, routing_controllers_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, room_1.RoomFormValues]),
@@ -83,8 +83,8 @@ __decorate([
 ], RoomsController.prototype, "updateRoom", null);
 __decorate([
     (0, routing_controllers_1.HttpCode)(204),
-    (0, routing_controllers_1.Delete)("/:id"),
-    __param(0, (0, routing_controllers_1.Param)("id")),
+    (0, routing_controllers_1.Delete)("/:roomId"),
+    __param(0, (0, routing_controllers_1.Param)("roomId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)

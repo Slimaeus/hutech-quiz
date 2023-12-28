@@ -33,19 +33,19 @@ let QuizzesController = class QuizzesController {
     getQuizzes() {
         return this.quizzeService.getMany();
     }
-    getQuiz(id) {
-        return this.quizzeService.get(id);
+    getQuiz(quizId) {
+        return this.quizzeService.get(quizId);
     }
     insertQuiz(quizFormValues) {
         return this.quizzeService.create(quizFormValues);
     }
-    updateQuiz(id, quizFormValues) {
+    updateQuiz(quizId, quizFormValues) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.quizzeService.update(id, quizFormValues);
+            yield this.quizzeService.update(quizId, quizFormValues);
         });
     }
-    deleteQuiz(id) {
-        return this.quizzeService.delete(id);
+    deleteQuiz(quizId) {
+        return this.quizzeService.delete(quizId);
     }
 };
 __decorate([
@@ -58,8 +58,8 @@ __decorate([
 ], QuizzesController.prototype, "getQuizzes", null);
 __decorate([
     (0, routing_controllers_1.HttpCode)(200),
-    (0, routing_controllers_1.Get)("/:id"),
-    __param(0, (0, routing_controllers_1.Param)("id")),
+    (0, routing_controllers_1.Get)("/:quizId"),
+    __param(0, (0, routing_controllers_1.Param)("quizId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
@@ -74,8 +74,8 @@ __decorate([
 ], QuizzesController.prototype, "insertQuiz", null);
 __decorate([
     (0, routing_controllers_1.HttpCode)(204),
-    (0, routing_controllers_1.Put)("/:id"),
-    __param(0, (0, routing_controllers_1.Param)("id")),
+    (0, routing_controllers_1.Put)("/:quizId"),
+    __param(0, (0, routing_controllers_1.Param)("quizId")),
     __param(1, (0, routing_controllers_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, quiz_1.QuizFormValues]),
@@ -83,8 +83,8 @@ __decorate([
 ], QuizzesController.prototype, "updateQuiz", null);
 __decorate([
     (0, routing_controllers_1.HttpCode)(204),
-    (0, routing_controllers_1.Delete)("/:id"),
-    __param(0, (0, routing_controllers_1.Param)("id")),
+    (0, routing_controllers_1.Delete)("/:quizId"),
+    __param(0, (0, routing_controllers_1.Param)("quizId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)

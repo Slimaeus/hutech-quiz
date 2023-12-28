@@ -39,8 +39,6 @@ const routingControllerOptions: RoutingControllersOptions = {
         algorithms: ["HS256"],
       });
 
-      console.log(decoded);
-
       // Check if the decoded token has the necessary roles
       // You might want to customize this part based on your token structure
       // const userRoles = decoded.roles || [];

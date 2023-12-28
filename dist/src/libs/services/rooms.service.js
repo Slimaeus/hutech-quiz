@@ -34,7 +34,7 @@ class RoomsService {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.prisma.room.update({
                 where: {
-                    id: id,
+                    id: id
                 },
                 data: data,
             });

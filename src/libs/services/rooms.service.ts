@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Room } from "@prisma/client";
 import { RoomFormValues } from "../../models/room";
 
 export class RoomsService {
   prisma: PrismaClient = new PrismaClient();
 
-  getMany() {
+  getMany() : Promise<Room[]>{
     return this.prisma.room.findMany();
   }
 
-  get(id: string) {
+  get(id: string) : Promise<Room> {
     return this.prisma.room.findFirst({
       where: {
         id: id,
@@ -22,16 +22,16 @@ export class RoomsService {
     });
   }
 
-  async update(id: any, data: RoomFormValues) {
+  async update(id: string, data: RoomFormValues) : Promise<void> {
     await this.prisma.room.update({
       where: {
-        id: id,
+        id: id
       },
       data: data,
     });
   }
 
-  delete(id: any) {
+  delete(id: string) : Promise<Room> {
     return this.prisma.room.delete({
       where: {
         id: id,

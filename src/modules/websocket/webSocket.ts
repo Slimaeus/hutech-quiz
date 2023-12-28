@@ -52,19 +52,12 @@ class Websocket extends Server {
                 tokenStr = token.join("");
               }
               tokenStr = token as string;
-              console.info(`Token: ${tokenStr}`);
               const decoded = jwt.verify(tokenStr, process.env.TOKEN_KEY, {
                 algorithms: ["HS256"],
                 ignoreExpiration: true,
               });
 
-              console.log(`Decoded: `);
-              console.log(decoded);
-
               socket["user"] = Account.fromJson(decoded as jwt.JwtPayload);
-
-              console.log(`User: `);
-              console.log(socket["user"]);
 
               return next();
             } catch (error) {
