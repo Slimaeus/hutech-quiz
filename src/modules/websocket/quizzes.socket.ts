@@ -2,25 +2,27 @@ import { Socket } from "socket.io";
 import { NextFunction } from "express";
 import SocketHandler from "./socketHandler";
 import { Account } from "../../models/account";
+import { RoomsEvents } from "../../libs/events/rooms.events";
+import { SocketsEvents } from "../../libs/events/sockets.events";
 
 class QuizzesSocket implements SocketHandler {
   handleConnection(socket: Socket) {
-    socket.emit("ping", "Hi! I am a live socket connection");
-    console.log(socket.id);
+    console.info("Quizzes namespace is working...")
+    socket.emit(SocketsEvents.STARTED, "Quizzes namespace is working...");
     const user = socket["user"] as Account;
-    socket.emit("load_id", user.id);
+    socket.emit("load_user", user);
   }
 
   middlewareImplementation(socket: Socket, next: NextFunction) {
     socket
-      .on("join_room", ({ roomId }: { roomId: string }) => {
+      .on(RoomsEvents.JOIN_ROOM, ({ roomId }: { roomId: string }) => {
         socket.join(roomId);
-        socket.to(roomId).emit("joined_room", socket.id);
+        socket.to(roomId).emit(RoomsEvents.JOINED_ROOM, socket["user"]);
         console.info(`User: ${socket.id} joined room ${roomId}`);
       })
-      .on("leave_room", ({ roomId }: { roomId: string }) => {
+      .on(RoomsEvents.LEAVE_ROOM, ({ roomId }: { roomId: string }) => {
         socket.leave(roomId);
-        socket.to(roomId).emit("left_room", socket.id);
+        socket.to(roomId).emit(RoomsEvents.LEFT_ROOM, socket["user"]);
         console.info(`User: ${socket.id} left room ${roomId}`);
       });
     return next();

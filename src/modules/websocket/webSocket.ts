@@ -55,6 +55,7 @@ class Websocket extends Server {
               console.info(`Token: ${tokenStr}`);
               const decoded = jwt.verify(tokenStr, process.env.TOKEN_KEY, {
                 algorithms: ["HS256"],
+                ignoreExpiration: true,
               });
 
               console.log(`Decoded: `);

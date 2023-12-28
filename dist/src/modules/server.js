@@ -63,18 +63,18 @@ httpServer.listen(port, () => {
     console.log(`This is working in port ${port}`);
 });
 const io = webSocket_1.default.getInstance(httpServer);
-io.use((socket, next) => {
-    try {
-        console.log("Hello");
-        const token = socket.handshake.auth.token;
-        console.info(`Token: ${token}`);
-        return next();
-    }
-    catch (error) {
-        console.error(error);
-    }
-});
+// io.use((socket, next) => {
+//   try {
+//     console.log("Hello")
+//   const token = socket.handshake.auth.token;
+//   console.info(`Token: ${token}`)
+//   return next();
+//   } catch (error) {
+//     console.error(error)
+//     return next(error);
+//   }
+// })
 io.initializeHandlers([
-    { path: '/hubs/quizzes', handler: new quizzes_socket_1.default() }
+    { path: '/hubs/quizzes', handler: new quizzes_socket_1.default(), isAuthorized: true }
 ]);
 //# sourceMappingURL=server.js.map
