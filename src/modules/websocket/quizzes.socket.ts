@@ -1,6 +1,5 @@
 import { Socket } from "socket.io";
 import { NextFunction } from "express";
-import { Room } from "@prisma/client";
 import SocketHandler from "./socketHandler";
 import { Account } from "../../models/account";
 import { RoomsEvents } from "../../libs/events/rooms.events";
@@ -24,7 +23,7 @@ class QuizzesSocket implements SocketHandler {
         const roomsService: RoomsService = new RoomsService();
         const user = socket["user"] as Account;
 
-        var room : Room = await roomsService.get(roomId);
+        var room = await roomsService.get(roomId);
 
         if (!room) return;
 
@@ -41,7 +40,7 @@ class QuizzesSocket implements SocketHandler {
         const roomsService: RoomsService = new RoomsService();
         const user = socket["user"] as Account;
 
-        var room : Room = await roomsService.get(roomId);
+        var room = await roomsService.get(roomId);
         
         if (!room) return;
 
