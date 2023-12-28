@@ -1,0 +1,1 @@
+{"version":3,"file":"quizCollection.js","sourceRoot":"","sources":["../../../src/models/quizCollection.ts"],"names":[],"mappings":";;;AAEA,MAAa,wBAAwB;IAGnC,MAAM,CAAC,YAAY,CAAC,cAA8B;QAChD,MAAM,wBAAwB,GAAG,IAAI,wBAAwB,EAAE,CAAC;QAChE,wBAAwB,CAAC,IAAI,GAAG,cAAc,CAAC,IAAI,CAAC;QACpD,OAAO,wBAAwB,CAAC;IAClC,CAAC;CACF;AARD,4DAQC"}

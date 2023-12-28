@@ -13,7 +13,7 @@ import { QuizCollectionFormValues } from "../../models/quizCollection";
 import { PrismaClient } from "@prisma/client";
 import { QuizCollectionsService } from "../../libs/services/quizCollections.service";
 
-@JsonController("/api/v1/quizzes", { transformResponse: true })
+@JsonController("/api/v1/quizCollections", { transformResponse: true })
 class QuizCollectionsController {
   quizzeService: QuizCollectionsService = new QuizCollectionsService();
 
@@ -27,9 +27,9 @@ class QuizCollectionsController {
   }
 
   @HttpCode(200)
-  @Get("/:quizId")
-  getQuizCollection(@Param("quizId") quizId: string) {
-    return this.quizzeService.get(quizId);
+  @Get("/:quizCollectionId")
+  getQuizCollection(@Param("quizCollectionId") quizCollectionId: string) {
+    return this.quizzeService.get(quizCollectionId);
   }
 
   @HttpCode(201)
@@ -39,18 +39,18 @@ class QuizCollectionsController {
   }
 
   @HttpCode(204)
-  @Put("/:quizId")
+  @Put("/:quizCollectionId")
   async updateQuizCollection(
-    @Param("quizId") quizId: string,
+    @Param("quizCollectionId") quizCollectionId: string,
     @Body() quizFormValues: QuizCollectionFormValues
   ) {
-    await this.quizzeService.update(quizId, quizFormValues);
+    await this.quizzeService.update(quizCollectionId, quizFormValues);
   }
 
   @HttpCode(204)
-  @Delete("/:quizId")
-  deleteQuizCollection(@Param("quizId") quizId: string) {
-    return this.quizzeService.delete(quizId);
+  @Delete("/:quizCollectionId")
+  deleteQuizCollection(@Param("quizCollectionId") quizCollectionId: string) {
+    return this.quizzeService.delete(quizCollectionId);
   }
 }
 

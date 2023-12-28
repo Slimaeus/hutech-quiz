@@ -31,7 +31,7 @@ class QuizzesSocket implements SocketHandler {
         if (!roomFormValues.userIds.includes(user.id))
           roomFormValues.userIds.push(user.id);
         await roomsService.update(roomId, roomFormValues);
-
+        
         socket.join(roomId);
         socket.to(roomId).emit(RoomsEvents.JOINED_ROOM, user);
         console.info(`User: ${user.userName} joined room ${roomId}`);

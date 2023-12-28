@@ -17,6 +17,8 @@ import { Room } from "@prisma/client";
 
 export class RoomFormValues {
   code: string;
+  isStarted: boolean;
+  startedAt?: Date;
   userIds: string[] = [];
   quizCollectionId?: string;
 
@@ -24,6 +26,8 @@ export class RoomFormValues {
     const roomFormValues = new RoomFormValues();
     roomFormValues.code = room.code;
     roomFormValues.userIds = room.userIds;
+    roomFormValues.isStarted = room.isStarted;
+    roomFormValues.startedAt = room.startedAt;
     roomFormValues.quizCollectionId = room.quizCollectionId;
     return roomFormValues;
   }

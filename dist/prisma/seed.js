@@ -14,62 +14,64 @@ const prisma = new client_1.PrismaClient();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield prisma.answer.deleteMany();
+        yield prisma.quizToQuizCollection.deleteMany();
         yield prisma.quiz.deleteMany();
         yield prisma.quizCollection.deleteMany();
-        yield prisma.quizToQuizCollection.deleteMany();
-        const answers = [
+        const quizzes = [
             {
-                content: "19",
-                isCorrect: false,
-            },
-            {
-                content: "20",
-                isCorrect: false,
-            },
-            {
-                content: "21",
-                isCorrect: true,
-            },
-            {
-                content: "22",
-                isCorrect: false,
+                content: "1 + 1 = ",
+                explaination: "Một cộng một bằng mấy?",
+                score: 1,
             },
         ];
-        const quiz = yield prisma.quiz.create({
-            data: {
-                content: "How old are you?",
-                explaination: "Your age",
-                score: 1,
-                answers: {
-                    createMany: {
-                        data: answers
-                    }
-                }
-            },
-        });
+        const answers = [
+            [
+                {
+                    content: "1",
+                    isCorrect: false,
+                },
+                {
+                    content: "2",
+                    isCorrect: true,
+                },
+                { content: "3", isCorrect: false },
+                { content: "4", isCorrect: false },
+            ],
+        ];
+        const quizResult = yield Promise.all(quizzes.map((q, i) => {
+            return prisma.quiz.create({
+                data: Object.assign(Object.assign({}, q), { answers: {
+                        createMany: {
+                            data: answers[i],
+                        },
+                    } }),
+            });
+        }));
         const quizCollection = yield prisma.quizCollection.create({
             data: {
-                name: "Collection 1",
+                name: "Toán cấp 1",
                 quizzes: {
-                    create: {
-                        quizId: quiz.id,
-                    }
-                }
+                    create: quizResult.map((q) => {
+                        return {
+                            quizId: q.id,
+                        };
+                    }),
+                },
             },
         });
-        const answer = yield prisma.answer.create({
-            data: {
-                content: "No",
-                isCorrect: true,
-                quiz: {
-                    create: {
-                        content: "Are you robot?",
-                        explaination: "Verify!",
-                        score: 1
-                    }
-                }
-            }
-        });
+        // const answer = await prisma.answer.create({
+        //   data: {
+        //     content: "No",
+        //     isCorrect: true,
+        //     quiz: {
+        //       create: {
+        //         content: "Are you robot?",
+        //         explaination: "Verify!",
+        //         score: 1,
+        //       },
+        //     },
+        //   },
+        // });
     });
 }
 main().catch((e) => {

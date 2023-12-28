@@ -11,15 +11,12 @@ datasource db {
 }
 
 model Answer {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   content   String
-  isCorrect Boolean
-
-  quizId String @unique @db.ObjectId
-  quiz   Quiz   @relation(fields: [quizId], references: [id])
-
-  records Record[]
+  isCorrect Boolean  @default(false)
+  quizId    String?  @unique @db.ObjectId
+  quiz      Quiz?    @relation(fields: [quizId], references: [id])
+  records   Record[]
 }
 
 model Quiz {
@@ -52,14 +49,19 @@ model QuizToQuizCollection {
 model Room {
   id               String          @id @default(auto()) @map("_id") @db.ObjectId
   code             String
+  isStarted        Boolean         @default(false)
+  startedAt        DateTime?
   userIds          String[]
   quizCollectionId String?         @unique @db.ObjectId
   quizCollection   QuizCollection? @relation(fields: [quizCollectionId], references: [id])
+  records          Record[]
 }
 
 model Record {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   userId   String
+  roomId   String @unique @db.ObjectId
+  room     Room   @relation(fields: [roomId], references: [id])
   quizId   String @unique @db.ObjectId
   quiz     Quiz   @relation(fields: [quizId], references: [id])
   answerId String @unique @db.ObjectId

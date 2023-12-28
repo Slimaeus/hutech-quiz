@@ -1,69 +1,77 @@
-import { PrismaClient } from "@prisma/client";
+import { Answer, Prisma, PrismaClient, Quiz } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
   await prisma.answer.deleteMany();
+  await prisma.quizToQuizCollection.deleteMany();
   await prisma.quiz.deleteMany();
   await prisma.quizCollection.deleteMany();
-  await prisma.quizToQuizCollection.deleteMany();
-  
-  const answers = [
+
+  const quizzes: Prisma.QuizCreateManyInput[] = [
     {
-      content: "19",
-      isCorrect: false,
-    },
-    {
-      content: "20",
-      isCorrect: false,
-    },
-    {
-      content: "21",
-      isCorrect: true,
-    },
-    {
-      content: "22",
-      isCorrect: false,
+      content: "1 + 1 = ",
+      explaination: "Một cộng một bằng mấy?",
+      score: 1,
     },
   ];
-  const quiz = await prisma.quiz.create({
-    data: {
-      content: "How old are you?",
-      explaination: "Your age",
-      score: 1,
-      answers: {
-        createMany: {
-          data: answers
-        }
-      }
-    },
-  });
+
+  const answers: Prisma.AnswerCreateManyInput[][] = [
+    [
+      {
+        content: "1",
+        isCorrect: false,
+      },
+      {
+        content: "2",
+        isCorrect: true,
+      },
+      { content: "3", isCorrect: false },
+      { content: "4", isCorrect: false },
+    ],
+  ];
+
+  const quizResult = await Promise.all(
+    quizzes.map((q, i) => {
+      return prisma.quiz.create({
+        data: {
+          ...q,
+          answers: {
+            createMany: {
+              data: answers[i],
+            },
+          },
+        },
+      });
+    })
+  );
 
   const quizCollection = await prisma.quizCollection.create({
     data: {
-      name: "Collection 1",
+      name: "Toán cấp 1",
       quizzes: {
-        create: {
-          quizId: quiz.id,
-        }
-      }
+        create: quizResult.map((q) => {
+          return {
+            quizId: q.id,
+          };
+        }),
+      },
     },
   });
 
-  const answer = await prisma.answer.create({
-    data: 
-    {
-      content: "No",
-      isCorrect: true,
-      quiz: {
-        create: {
-          content: "Are you robot?",
-          explaination: "Verify!",
-          score: 1
-        }
-      }
-    }
-  });
+  // const answer = await prisma.answer.create({
+  //   data: {
+  //     content: "No",
+  //     isCorrect: true,
+  //     quiz: {
+  //       create: {
+  //         content: "Are you robot?",
+  //         explaination: "Verify!",
+  //         score: 1,
+  //       },
+  //     },
+  //   },
+  // });
 }
 
 main().catch((e) => {

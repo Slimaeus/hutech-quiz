@@ -40,16 +40,11 @@ class Websocket extends socket_io_1.Server {
                                 tokenStr = token.join("");
                             }
                             tokenStr = token;
-                            console.info(`Token: ${tokenStr}`);
                             const decoded = jsonwebtoken_1.default.verify(tokenStr, process.env.TOKEN_KEY, {
                                 algorithms: ["HS256"],
                                 ignoreExpiration: true,
                             });
-                            console.log(`Decoded: `);
-                            console.log(decoded);
                             socket["user"] = account_1.Account.fromJson(decoded);
-                            console.log(`User: `);
-                            console.log(socket["user"]);
                             return next();
                         }
                         catch (error) {
