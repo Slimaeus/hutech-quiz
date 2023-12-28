@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   Authorized,
+  OnUndefined,
 } from "routing-controllers";
 import { QuizCollectionFormValues } from "../../models/quizCollection";
 import { PrismaClient } from "@prisma/client";
@@ -38,16 +39,16 @@ class QuizCollectionsController {
     return this.quizzeService.create(quizFormValues);
   }
 
-  @HttpCode(204)
+  @OnUndefined(204)
   @Put("/:quizCollectionId")
-  async updateQuizCollection(
+  updateQuizCollection(
     @Param("quizCollectionId") quizCollectionId: string,
     @Body() quizFormValues: QuizCollectionFormValues
   ) {
-    await this.quizzeService.update(quizCollectionId, quizFormValues);
+    return this.quizzeService.update(quizCollectionId, quizFormValues);
   }
 
-  @HttpCode(204)
+  @HttpCode(200)
   @Delete("/:quizCollectionId")
   deleteQuizCollection(@Param("quizCollectionId") quizCollectionId: string) {
     return this.quizzeService.delete(quizCollectionId);

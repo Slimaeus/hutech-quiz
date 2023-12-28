@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   Authorized,
+  OnUndefined,
 } from "routing-controllers";
 import { RoomFormValues } from "../../models/room";
 import { PrismaClient } from "@prisma/client";
@@ -38,16 +39,16 @@ class RoomsController {
     return this.roomsService.create(roomFormValues);
   }
 
-  @HttpCode(204)
+  @OnUndefined(204)
   @Put("/:roomId")
-  async updateRoom(
+  updateRoom(
     @Param("roomId") roomId: string,
     @Body() roomFormValues: RoomFormValues
   ) {
-    await this.roomsService.update(roomId, roomFormValues);
+    return this.roomsService.update(roomId, roomFormValues);
   }
 
-  @HttpCode(204)
+  @HttpCode(200)
   @Delete("/:roomId")
   deleteRoom(@Param("roomId") roomId: string) {
     return this.roomsService.delete(roomId);

@@ -22,7 +22,7 @@ export class RoomsService {
     });
   }
 
-  async update(id: string, data: RoomFormValues) : Promise<void> {
+  async update(id: string, data: RoomFormValues) {
     await this.prisma.room.update({
       where: {
         id: id
