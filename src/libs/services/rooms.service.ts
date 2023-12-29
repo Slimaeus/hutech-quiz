@@ -1,6 +1,8 @@
 import { PrismaClient, Room } from "@prisma/client";
 import { RoomFormValues } from "../../models/room";
+import { Service } from "typedi";
 
+@Service()
 export class RoomsService {
   prisma: PrismaClient = new PrismaClient();
 

@@ -16,10 +16,15 @@ const routing_controllers_1 = require("routing-controllers");
 const room_1 = require("../../models/room");
 const client_1 = require("@prisma/client");
 const rooms_service_1 = require("../../libs/services/rooms.service");
+const account_1 = require("../../models/account");
 let RoomsController = class RoomsController {
-    constructor() {
-        this.roomsService = new rooms_service_1.RoomsService();
+    /**
+     *
+     */
+    constructor(roomService) {
+        this.roomService = roomService;
         this.prisma = new client_1.PrismaClient();
+        this.roomService = roomService;
     }
     getRooms() {
         return this.roomsService.getMany();
@@ -31,7 +36,7 @@ let RoomsController = class RoomsController {
         return this.roomsService.getByCode(code);
     }
     insertRoom(roomFormValues, user) {
-        console.log(user);
+        roomFormValues.ownerId = user.id;
         return this.roomsService.create(roomFormValues);
     }
     startRoom(roomId) {
@@ -83,7 +88,8 @@ __decorate([
     __param(0, (0, routing_controllers_1.Body)()),
     __param(1, (0, routing_controllers_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [room_1.RoomFormValues, Object]),
+    __metadata("design:paramtypes", [room_1.RoomFormValues,
+        account_1.Account]),
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "insertRoom", null);
 __decorate([
@@ -120,7 +126,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "deleteRoom", null);
 RoomsController = __decorate([
-    (0, routing_controllers_1.JsonController)("/api/v1/rooms", { transformResponse: true })
+    (0, routing_controllers_1.JsonController)("/api/v1/rooms", { transformResponse: true }),
+    __metadata("design:paramtypes", [rooms_service_1.RoomsService])
 ], RoomsController);
 exports.default = RoomsController;
 //# sourceMappingURL=rooms.api.controller.js.map

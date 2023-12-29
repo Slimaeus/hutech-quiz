@@ -13,30 +13,38 @@ import {
 import { QuizCollectionFormValues } from "../../models/quizCollection";
 import { PrismaClient } from "@prisma/client";
 import { QuizCollectionsService } from "../../libs/services/quizCollections.service";
+import { Service } from "typedi";
 
+@Service()
 @JsonController("/api/v1/quizCollections", { transformResponse: true })
 class QuizCollectionsController {
-  quizzeService: QuizCollectionsService = new QuizCollectionsService();
+  private readonly quizCollectionsService: QuizCollectionsService;
 
   prisma: PrismaClient = new PrismaClient();
+
+  constructor(
+    private readonly injectedQuizCollectionsService: QuizCollectionsService
+  ) {
+    this.quizCollectionsService = injectedQuizCollectionsService;
+  }
 
   @HttpCode(200)
   @Authorized()
   @Get()
   getQuizCollectionCollections() {
-    return this.quizzeService.getMany();
+    return this.quizCollectionsService.getMany();
   }
 
   @HttpCode(200)
   @Get("/:quizCollectionId")
   getQuizCollection(@Param("quizCollectionId") quizCollectionId: string) {
-    return this.quizzeService.get(quizCollectionId);
+    return this.quizCollectionsService.get(quizCollectionId);
   }
 
   @HttpCode(201)
   @Post()
   insertQuizCollection(@Body() quizFormValues: QuizCollectionFormValues) {
-    return this.quizzeService.create(quizFormValues);
+    return this.quizCollectionsService.create(quizFormValues);
   }
 
   @OnUndefined(204)
@@ -45,13 +53,13 @@ class QuizCollectionsController {
     @Param("quizCollectionId") quizCollectionId: string,
     @Body() quizFormValues: QuizCollectionFormValues
   ) {
-    return this.quizzeService.update(quizCollectionId, quizFormValues);
+    return this.quizCollectionsService.update(quizCollectionId, quizFormValues);
   }
 
   @HttpCode(200)
   @Delete("/:quizCollectionId")
   deleteQuizCollection(@Param("quizCollectionId") quizCollectionId: string) {
-    return this.quizzeService.delete(quizCollectionId);
+    return this.quizCollectionsService.delete(quizCollectionId);
   }
 }
 

@@ -1,6 +1,8 @@
 import { PrismaClient, QuizCollection } from "@prisma/client";
 import { QuizCollectionFormValues } from "../../models/quizCollection";
+import { Service } from "typedi";
 
+@Service()
 export class QuizCollectionsService {
   prisma: PrismaClient = new PrismaClient();
 

@@ -7,10 +7,13 @@ import {
   Action,
   createExpressServer,
   RoutingControllersOptions,
+  useContainer,
 } from "routing-controllers";
 import Websocket from "./websocket/webSocket";
 import QuizzesSocket from "./websocket/quizzes.socket";
 import { Account } from "../models/account";
+import Container from "typedi";
+import { RoomsService } from "../libs/services/rooms.service";
 
 const port = process.env.APP_PORT || 3000;
 
@@ -78,6 +81,8 @@ const routingControllerOptions: RoutingControllersOptions = {
     }
   },
 };
+
+useContainer(Container);
 
 const app = createExpressServer(routingControllerOptions,);
 

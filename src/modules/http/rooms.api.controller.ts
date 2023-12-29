@@ -16,12 +16,18 @@ import { RoomFormValues } from "../../models/room";
 import { PrismaClient } from "@prisma/client";
 import { RoomsService } from "../../libs/services/rooms.service";
 import { Account } from "../../models/account";
+import { Service } from "typedi";
 
+@Service()
 @JsonController("/api/v1/rooms", { transformResponse: true })
 class RoomsController {
-  roomsService: RoomsService = new RoomsService();
+  private readonly roomsService: RoomsService;
 
   prisma: PrismaClient = new PrismaClient();
+  
+  constructor(private readonly injectedRoomsService: RoomsService) {
+    this.roomsService = injectedRoomsService;
+  }
 
   @HttpCode(200)
   @Authorized()

@@ -6,7 +6,9 @@ import { RoomsEvents } from "../../libs/events/rooms.events";
 import { SocketsEvents } from "../../libs/events/sockets.events";
 import { RoomsService } from "../../libs/services/rooms.service";
 import { RoomFormValues } from "../../models/room";
+import { Service } from "typedi";
 
+@Service()
 class QuizzesSocket implements SocketHandler {
   async handleConnection(socket: Socket) {
     const roomsService: RoomsService = new RoomsService();

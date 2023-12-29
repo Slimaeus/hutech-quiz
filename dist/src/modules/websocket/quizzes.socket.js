@@ -81,9 +81,8 @@ class QuizzesSocket {
             roomFormValues.isStarted = true;
             roomFormValues.startedAt = new Date();
             yield roomsService.update(room.id, roomFormValues);
-            socket.join(roomCode);
-            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
-            console.info(`User: ${user.userName} joined room ${roomCode}`);
+            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, room);
+            console.info(`User: ${user.userName} start room ${roomCode}`);
         }));
         return next();
     }
