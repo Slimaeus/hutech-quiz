@@ -18,10 +18,9 @@ require("reflect-metadata");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const routing_controllers_1 = require("routing-controllers");
 const webSocket_1 = __importDefault(require("./websocket/webSocket"));
-const quizzes_socket_1 = __importDefault(require("./websocket/quizzes.socket"));
 const account_1 = require("../models/account");
 const typedi_1 = __importDefault(require("typedi"));
-const rooms_service_1 = require("../libs/services/rooms.service");
+const socket_controllers_1 = require("socket-controllers");
 const port = process.env.APP_PORT || 3000;
 const routingControllerOptions = {
     routePrefix: "",
@@ -35,7 +34,8 @@ const routingControllerOptions = {
         const scheme = "bearer";
         // const isTest = true;
         // if (isTest) return isTest;
-        if (!authorizationHeader || !authorizationHeader.toLowerCase().startsWith(scheme)) {
+        if (!authorizationHeader ||
+            !authorizationHeader.toLowerCase().startsWith(scheme)) {
             return false;
         }
         const token = authorizationHeader.substring(scheme.length).trim();
@@ -45,10 +45,9 @@ const routingControllerOptions = {
             // Verify the token using the same key and algorithm used in your ASP.NET Core app
             const decoded = jsonwebtoken_1.default.verify(token, process.env.TOKEN_KEY, {
                 algorithms: ["HS256"],
-                ignoreExpiration: true
+                ignoreExpiration: true,
             });
             return account_1.Account.fromJson(decoded);
-            ;
         }
         catch (error) {
             // Token is invalid or expired
@@ -61,7 +60,8 @@ const routingControllerOptions = {
         const isTest = true;
         if (isTest)
             return isTest;
-        if (!authorizationHeader || !authorizationHeader.toLowerCase().startsWith(scheme)) {
+        if (!authorizationHeader ||
+            !authorizationHeader.toLowerCase().startsWith(scheme)) {
             return false;
         }
         const token = authorizationHeader.substring(scheme.length).trim();
@@ -84,7 +84,6 @@ const routingControllerOptions = {
         }
     }),
 };
-typedi_1.default.set(rooms_service_1.RoomsService, new rooms_service_1.RoomsService());
 (0, routing_controllers_1.useContainer)(typedi_1.default);
 const app = (0, routing_controllers_1.createExpressServer)(routingControllerOptions);
 const httpServer = (0, http_1.createServer)(app);
@@ -92,7 +91,12 @@ httpServer.listen(port, () => {
     console.log(`This is working in port ${port}`);
 });
 const io = webSocket_1.default.getInstance(httpServer);
-io.initializeHandlers([
-    { path: '/hubs/quizzes', handler: new quizzes_socket_1.default(), isAuthorized: true }
-]);
+new socket_controllers_1.SocketControllers({
+    io,
+    container: typedi_1.default,
+    controllers: [`${__dirname}/websocket/*.socket.controller.*`],
+});
+// io.initializeHandlers([
+//   { path: '/hubs/quizzes', handler: new QuizzesSocket(), isAuthorized: true }
+// ]);
 //# sourceMappingURL=server.js.map

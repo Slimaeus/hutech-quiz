@@ -17,14 +17,12 @@ const room_1 = require("../../models/room");
 const client_1 = require("@prisma/client");
 const rooms_service_1 = require("../../libs/services/rooms.service");
 const account_1 = require("../../models/account");
+const typedi_1 = require("typedi");
 let RoomsController = class RoomsController {
-    /**
-     *
-     */
-    constructor(roomService) {
-        this.roomService = roomService;
+    constructor(injectedRoomsService) {
+        this.injectedRoomsService = injectedRoomsService;
         this.prisma = new client_1.PrismaClient();
-        this.roomService = roomService;
+        this.roomsService = injectedRoomsService;
     }
     getRooms() {
         return this.roomsService.getMany();
@@ -126,6 +124,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "deleteRoom", null);
 RoomsController = __decorate([
+    (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/api/v1/rooms", { transformResponse: true }),
     __metadata("design:paramtypes", [rooms_service_1.RoomsService])
 ], RoomsController);

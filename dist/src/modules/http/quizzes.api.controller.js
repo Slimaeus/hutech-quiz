@@ -16,25 +16,27 @@ const routing_controllers_1 = require("routing-controllers");
 const quiz_1 = require("../../models/quiz");
 const client_1 = require("@prisma/client");
 const quizzes_service_1 = require("../../libs/services/quizzes.service");
+const typedi_1 = require("typedi");
 let QuizzesController = class QuizzesController {
-    constructor() {
-        this.quizzeService = new quizzes_service_1.QuizzesService();
+    constructor(injectedQuizzesService) {
+        this.injectedQuizzesService = injectedQuizzesService;
         this.prisma = new client_1.PrismaClient();
+        this.quizzesService = injectedQuizzesService;
     }
     getQuizzes() {
-        return this.quizzeService.getMany();
+        return this.quizzesService.getMany();
     }
     getQuiz(quizId) {
-        return this.quizzeService.get(quizId);
+        return this.quizzesService.get(quizId);
     }
     insertQuiz(quizFormValues) {
-        return this.quizzeService.create(quizFormValues);
+        return this.quizzesService.create(quizFormValues);
     }
     updateQuiz(quizId, quizFormValues) {
-        return this.quizzeService.update(quizId, quizFormValues);
+        return this.quizzesService.update(quizId, quizFormValues);
     }
     deleteQuiz(quizId) {
-        return this.quizzeService.delete(quizId);
+        return this.quizzesService.delete(quizId);
     }
 };
 __decorate([
@@ -79,7 +81,9 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], QuizzesController.prototype, "deleteQuiz", null);
 QuizzesController = __decorate([
-    (0, routing_controllers_1.JsonController)("/api/v1/quizzes", { transformResponse: true })
+    (0, typedi_1.Service)(),
+    (0, routing_controllers_1.JsonController)("/api/v1/quizzes", { transformResponse: true }),
+    __metadata("design:paramtypes", [quizzes_service_1.QuizzesService])
 ], QuizzesController);
 exports.default = QuizzesController;
 //# sourceMappingURL=quizzes.api.controller.js.map

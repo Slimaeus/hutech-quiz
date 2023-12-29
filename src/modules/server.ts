@@ -10,10 +10,9 @@ import {
   useContainer,
 } from "routing-controllers";
 import Websocket from "./websocket/webSocket";
-import QuizzesSocket from "./websocket/quizzes.socket";
 import { Account } from "../models/account";
 import Container from "typedi";
-import { RoomsService } from "../libs/services/rooms.service";
+import { SocketControllers } from "socket-controllers";
 
 const port = process.env.APP_PORT || 3000;
 
@@ -25,15 +24,18 @@ const routingControllerOptions: RoutingControllersOptions = {
   cors: false,
   defaultErrorHandler: true,
   currentUserChecker: (action: Action) => {
-    const authorizationHeader : string = action.request.headers["authorization"];
+    const authorizationHeader: string = action.request.headers["authorization"];
     const scheme = "bearer";
     // const isTest = true;
     // if (isTest) return isTest;
-    if (!authorizationHeader || !authorizationHeader.toLowerCase().startsWith(scheme)) {
+    if (
+      !authorizationHeader ||
+      !authorizationHeader.toLowerCase().startsWith(scheme)
+    ) {
       return false;
     }
 
-    const token : string = authorizationHeader.substring(scheme.length).trim();
+    const token: string = authorizationHeader.substring(scheme.length).trim();
 
     if (!token) return false;
 
@@ -41,25 +43,28 @@ const routingControllerOptions: RoutingControllersOptions = {
       // Verify the token using the same key and algorithm used in your ASP.NET Core app
       const decoded = jwt.verify(token, process.env.TOKEN_KEY, {
         algorithms: ["HS256"],
-        ignoreExpiration: true
+        ignoreExpiration: true,
       });
 
-      return Account.fromJson(decoded as jwt.JwtPayload);;
+      return Account.fromJson(decoded as jwt.JwtPayload);
     } catch (error) {
       // Token is invalid or expired
       return undefined;
     }
   },
   authorizationChecker: async (action: Action, roles: string[]) => {
-    const authorizationHeader : string = action.request.headers["authorization"];
+    const authorizationHeader: string = action.request.headers["authorization"];
     const scheme = "bearer";
     const isTest = true;
     if (isTest) return isTest;
-    if (!authorizationHeader || !authorizationHeader.toLowerCase().startsWith(scheme)) {
+    if (
+      !authorizationHeader ||
+      !authorizationHeader.toLowerCase().startsWith(scheme)
+    ) {
       return false;
     }
 
-    const token : string = authorizationHeader.substring(scheme.length).trim();
+    const token: string = authorizationHeader.substring(scheme.length).trim();
 
     if (!token) return false;
 
@@ -84,7 +89,7 @@ const routingControllerOptions: RoutingControllersOptions = {
 
 useContainer(Container);
 
-const app = createExpressServer(routingControllerOptions,);
+const app = createExpressServer(routingControllerOptions);
 
 const httpServer = createServer(app);
 
@@ -94,6 +99,9 @@ httpServer.listen(port, () => {
 
 const io = Websocket.getInstance(httpServer);
 
-io.initializeHandlers([
-  { path: '/hubs/quizzes', handler: new QuizzesSocket(), isAuthorized: true }
-]);
+new SocketControllers({
+  io,
+  container: Container,
+  controllers: [`${__dirname}/websocket/*.socket.controller.*`],
+  middlewares: [`${__dirname}/websocket/middlewares/*.socket.middleware.*`],
+});

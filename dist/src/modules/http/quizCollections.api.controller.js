@@ -16,25 +16,27 @@ const routing_controllers_1 = require("routing-controllers");
 const quizCollection_1 = require("../../models/quizCollection");
 const client_1 = require("@prisma/client");
 const quizCollections_service_1 = require("../../libs/services/quizCollections.service");
+const typedi_1 = require("typedi");
 let QuizCollectionsController = class QuizCollectionsController {
-    constructor() {
-        this.quizzeService = new quizCollections_service_1.QuizCollectionsService();
+    constructor(injectedQuizCollectionsService) {
+        this.injectedQuizCollectionsService = injectedQuizCollectionsService;
         this.prisma = new client_1.PrismaClient();
+        this.quizCollectionsService = injectedQuizCollectionsService;
     }
     getQuizCollectionCollections() {
-        return this.quizzeService.getMany();
+        return this.quizCollectionsService.getMany();
     }
     getQuizCollection(quizCollectionId) {
-        return this.quizzeService.get(quizCollectionId);
+        return this.quizCollectionsService.get(quizCollectionId);
     }
     insertQuizCollection(quizFormValues) {
-        return this.quizzeService.create(quizFormValues);
+        return this.quizCollectionsService.create(quizFormValues);
     }
     updateQuizCollection(quizCollectionId, quizFormValues) {
-        return this.quizzeService.update(quizCollectionId, quizFormValues);
+        return this.quizCollectionsService.update(quizCollectionId, quizFormValues);
     }
     deleteQuizCollection(quizCollectionId) {
-        return this.quizzeService.delete(quizCollectionId);
+        return this.quizCollectionsService.delete(quizCollectionId);
     }
 };
 __decorate([
@@ -79,7 +81,9 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], QuizCollectionsController.prototype, "deleteQuizCollection", null);
 QuizCollectionsController = __decorate([
-    (0, routing_controllers_1.JsonController)("/api/v1/quizCollections", { transformResponse: true })
+    (0, typedi_1.Service)(),
+    (0, routing_controllers_1.JsonController)("/api/v1/quizCollections", { transformResponse: true }),
+    __metadata("design:paramtypes", [quizCollections_service_1.QuizCollectionsService])
 ], QuizCollectionsController);
 exports.default = QuizCollectionsController;
 //# sourceMappingURL=quizCollections.api.controller.js.map
