@@ -9,6 +9,7 @@ import {
   HttpCode,
   Authorized,
   OnUndefined,
+  Patch,
 } from "routing-controllers";
 import { RoomFormValues } from "../../models/room";
 import { PrismaClient } from "@prisma/client";
@@ -43,6 +44,27 @@ class RoomsController {
   @Post()
   insertRoom(@Body() roomFormValues: RoomFormValues) {
     return this.roomsService.create(roomFormValues);
+  }
+
+  @OnUndefined(204)
+  @Patch("/:roomId/start")
+  startRoom(
+    @Param("roomId") roomId: string
+  ) {
+    const roomFormValues = new RoomFormValues();
+    roomFormValues.isStarted = true;
+    roomFormValues.startedAt = new Date();
+    return this.roomsService.update(roomId, roomFormValues);
+  }
+
+  @OnUndefined(204)
+  @Patch("/:roomId/stop")
+  stopRoom(
+    @Param("roomId") roomId: string
+  ) {
+    const roomFormValues = new RoomFormValues();
+    roomFormValues.isStarted = false;
+    return this.roomsService.update(roomId, roomFormValues);
   }
 
   @OnUndefined(204)

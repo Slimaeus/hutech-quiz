@@ -19,7 +19,7 @@ export class RoomFormValues {
   code: string;
   isStarted: boolean;
   startedAt?: Date;
-  userIds: string[] = [];
+  userIds?: string[];
   quizCollectionId?: string;
 
   static toFormValues(room: Room): RoomFormValues {
