@@ -35,4 +35,3 @@ Websocket = Websocket_1 = __decorate([
     __metadata("design:paramtypes", [http.Server])
 ], Websocket);
 exports.default = Websocket;
-//# sourceMappingURL=webSocket.js.map

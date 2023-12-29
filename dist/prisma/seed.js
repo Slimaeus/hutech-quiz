@@ -77,4 +77,3 @@ function main() {
 main().catch((e) => {
     console.log(e);
 });
-//# sourceMappingURL=seed.js.map

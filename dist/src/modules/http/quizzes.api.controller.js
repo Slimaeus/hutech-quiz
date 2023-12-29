@@ -85,4 +85,3 @@ QuizzesController = __decorate([
     __metadata("design:paramtypes", [quizzes_service_1.QuizzesService])
 ], QuizzesController);
 exports.default = QuizzesController;
-//# sourceMappingURL=quizzes.api.controller.js.map

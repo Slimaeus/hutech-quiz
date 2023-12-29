@@ -126,4 +126,3 @@ exports.RoomsService = RoomsService = __decorate([
     (0, typedi_1.Service)(),
     __metadata("design:paramtypes", [client_1.PrismaClient])
 ], RoomsService);
-//# sourceMappingURL=rooms.service.js.map

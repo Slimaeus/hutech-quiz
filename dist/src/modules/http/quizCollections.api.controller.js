@@ -89,4 +89,3 @@ QuizCollectionsController = __decorate([
     __metadata("design:paramtypes", [quizCollections_service_1.QuizCollectionsService])
 ], QuizCollectionsController);
 exports.default = QuizCollectionsController;
-//# sourceMappingURL=quizCollections.api.controller.js.map

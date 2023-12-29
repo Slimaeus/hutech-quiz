@@ -70,4 +70,3 @@ exports.AuthenticationMiddleware = AuthenticationMiddleware = __decorate([
     (0, socket_controllers_1.Middleware)({ namespace: quizzes_socket_controller_1.QuizzesSocketController.namespace }),
     (0, typedi_1.Service)()
 ], AuthenticationMiddleware);
-//# sourceMappingURL=authentication.socket.middleware.js.map

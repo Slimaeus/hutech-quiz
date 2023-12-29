@@ -197,4 +197,3 @@ RoomsController = __decorate([
         webSocket_1.default])
 ], RoomsController);
 exports.default = RoomsController;
-//# sourceMappingURL=rooms.api.controller.js.map

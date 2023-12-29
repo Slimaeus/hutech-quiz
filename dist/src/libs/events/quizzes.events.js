@@ -5,4 +5,3 @@ exports.QuizzesEvents = {
     LOAD_QUIZZES: "load_quizzes",
     LOADED_QUIZZES: "loaded_quizzes"
 };
-//# sourceMappingURL=quizzes.events.js.map

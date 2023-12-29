@@ -66,4 +66,3 @@ exports.QuizzesService = QuizzesService = __decorate([
     (0, typedi_1.Service)(),
     __metadata("design:paramtypes", [client_1.PrismaClient])
 ], QuizzesService);
-//# sourceMappingURL=quizzes.service.js.map

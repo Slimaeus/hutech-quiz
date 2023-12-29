@@ -1,1 +1,0 @@
-{"version":3,"file":"answer.js","sourceRoot":"","sources":["../../src/models/answer.ts"],"names":[],"mappings":";;;AAAA,MAAa,MAAM;IAMjB;;OAEG;IACH,YAAY,OAAe,EAAE,SAAkB;QAC7C,IAAI,CAAC,OAAO,GAAG,OAAO,CAAC;QACvB,IAAI,CAAC,SAAS,GAAG,SAAS,CAAC;IAC7B,CAAC;CACF;AAbD,wBAaC"}

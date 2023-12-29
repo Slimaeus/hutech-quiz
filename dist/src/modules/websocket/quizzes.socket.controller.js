@@ -181,4 +181,3 @@ exports.QuizzesSocketController = QuizzesSocketController = __decorate([
         quizCollections_service_1.QuizCollectionsService,
         quizzes_service_1.QuizzesService])
 ], QuizzesSocketController);
-//# sourceMappingURL=quizzes.socket.controller.js.map

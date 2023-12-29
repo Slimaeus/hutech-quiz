@@ -12,4 +12,3 @@
 //     this.isCorrect = isCorrect;
 //   }
 // }
-//# sourceMappingURL=answer.js.map

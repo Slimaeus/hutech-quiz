@@ -9,4 +9,3 @@ class QuizCollectionFormValues {
     }
 }
 exports.QuizCollectionFormValues = QuizCollectionFormValues;
-//# sourceMappingURL=quizCollection.js.map

@@ -29,4 +29,3 @@ class QuizFormValues {
     }
 }
 exports.QuizFormValues = QuizFormValues;
-//# sourceMappingURL=quiz.js.map

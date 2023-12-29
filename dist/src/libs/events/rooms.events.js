@@ -11,4 +11,3 @@ exports.RoomsEvents = {
     END_ROOM: "end_room",
     ENDED_ROOM: "ended_room"
 };
-//# sourceMappingURL=rooms.events.js.map

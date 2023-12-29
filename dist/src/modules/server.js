@@ -102,4 +102,3 @@ new socket_controllers_1.SocketControllers({
     controllers: [`${__dirname}/websocket/*.socket.controller.*`],
     middlewares: [`${__dirname}/websocket/middlewares/*.socket.middleware.*`],
 });
-//# sourceMappingURL=server.js.map
