@@ -31,6 +31,7 @@ let AuthenticationMiddleware = class AuthenticationMiddleware {
                 algorithms: ["HS256"],
                 ignoreExpiration: true,
             });
+            // ! Ignore Expiration is on 
             socket["user"] = account_1.Account.fromJson(decoded);
             return next();
         }

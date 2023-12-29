@@ -1,13 +1,17 @@
-import { PrismaClient, Quiz } from "@prisma/client";
+import { Prisma, PrismaClient, Quiz } from "@prisma/client";
 import { QuizFormValues } from "../../models/quiz";
 import { Service } from "typedi";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 @Service()
 export class QuizzesService {
   prisma: PrismaClient = new PrismaClient();
 
-  getMany() : Promise<Quiz[]> {
-    return this.prisma.quiz.findMany();
+  getMany(filter?: Prisma.QuizWhereInput, include?: Prisma.QuizInclude<DefaultArgs>) : Promise<Quiz[]> {
+    return this.prisma.quiz.findMany({
+      where: filter,
+      include: include
+    });
   }
 
   get(id: string) : Promise<Quiz> {

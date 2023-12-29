@@ -18,13 +18,9 @@ import { Service } from "typedi";
 @Service()
 @JsonController("/api/v1/quizzes", { transformResponse: true })
 class QuizzesController {
-  private readonly quizzesService: QuizzesService;
-
   prisma: PrismaClient = new PrismaClient();
 
-  constructor(private readonly injectedQuizzesService: QuizzesService) {
-    this.quizzesService = injectedQuizzesService;
-  }
+  constructor(private readonly quizzesService: QuizzesService) {}
 
   @HttpCode(200)
   @Authorized()

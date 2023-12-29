@@ -26,6 +26,8 @@ export class AuthenticationMiddleware implements MiddlewareInterface {
         ignoreExpiration: true,
       });
 
+      // ! Ignore Expiration is on 
+
       socket["user"] = Account.fromJson(decoded as jwt.JwtPayload);
 
       return next();

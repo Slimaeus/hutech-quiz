@@ -1,24 +1,34 @@
-import { PrismaClient, Room } from "@prisma/client";
+import { Prisma, PrismaClient, Room } from "@prisma/client";
 import { RoomFormValues } from "../../models/room";
 import { Service } from "typedi";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 @Service()
 export class RoomsService {
   prisma: PrismaClient = new PrismaClient();
 
-  getMany() : Promise<Room[]>{
-    return this.prisma.room.findMany();
+  getMany(
+    filter?: Prisma.RoomWhereInput,
+    include?: Prisma.RoomInclude<DefaultArgs>
+  ): Promise<Room[]> {
+    return this.prisma.room.findMany({
+      where: filter,
+      include: include,
+    });
   }
 
-  get(id: string) : Promise<Room> {
+  get(id: string): Promise<Room> {
     return this.prisma.room.findFirst({
       where: {
         id: id,
       },
+      include: {
+        quizCollection: true,
+      },
     });
   }
 
-  getByCode(code: string) : Promise<Room> {
+  getByCode(code: string): Promise<Room> {
     return this.prisma.room.findFirst({
       where: {
         code: code,
@@ -35,13 +45,13 @@ export class RoomsService {
   async update(id: string, data: RoomFormValues) {
     await this.prisma.room.update({
       where: {
-        id: id
+        id: id,
       },
       data: data,
     });
   }
 
-  delete(id: string) : Promise<Room> {
+  delete(id: string): Promise<Room> {
     return this.prisma.room.delete({
       where: {
         id: id,
@@ -52,11 +62,11 @@ export class RoomsService {
   async start(id: string) {
     await this.prisma.room.update({
       where: {
-        id: id
+        id: id,
       },
       data: {
         isStarted: true,
-        startedAt: new Date()
+        startedAt: new Date(),
       },
     });
   }
@@ -64,11 +74,11 @@ export class RoomsService {
   async startByCode(code: string) {
     await this.prisma.room.update({
       where: {
-        code: code
+        code: code,
       },
       data: {
         isStarted: true,
-        startedAt: new Date()
+        startedAt: new Date(),
       },
     });
   }
@@ -76,7 +86,7 @@ export class RoomsService {
   async end(id: string) {
     await this.prisma.room.update({
       where: {
-        id: id
+        id: id,
       },
       data: {
         isStarted: false,
@@ -87,7 +97,7 @@ export class RoomsService {
   async endByCode(code: string) {
     await this.prisma.room.update({
       where: {
-        code: code
+        code: code,
       },
       data: {
         isStarted: false,

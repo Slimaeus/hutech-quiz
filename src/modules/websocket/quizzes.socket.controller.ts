@@ -13,17 +13,20 @@ import { RoomsEvents } from "../../libs/events/rooms.events";
 import { Account } from "../../models/account";
 import { SocketsEvents } from "../../libs/events/sockets.events";
 import { Socket } from "socket.io";
+import { QuizzesEvents } from "../../libs/events/quizzes.events";
+import { QuizCollectionsService } from "../../libs/services/quizCollections.service";
+import { QuizzesService } from "../../libs/services/quizzes.service";
 
 @SocketController(QuizzesSocketController.namespace)
 @Service()
 export class QuizzesSocketController {
   static namespace: string = "/hubs/quizzes";
 
-  private readonly roomsService: RoomsService;
-
-  constructor(private readonly injectedRoomsService: RoomsService) {
-    this.roomsService = injectedRoomsService;
-  }
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly quizCollectionsService: QuizCollectionsService,
+    private readonly quizzesService: QuizzesService
+  ) {}
 
   @OnConnect()
   async connection(@ConnectedSocket() socket: Socket) {
@@ -45,16 +48,25 @@ export class QuizzesSocketController {
     }
     roomCode = roomCodeParam as string;
 
-    var room = await roomsService.getByCode(roomCode);
+    const room = await roomsService.getByCode(roomCode);
 
     if (!room) return;
 
-    var roomFormValues = RoomFormValues.toFormValues(room);
+    const roomFormValues = RoomFormValues.toFormValues(room);
     if (!roomFormValues.userIds.includes(user.id))
       roomFormValues.userIds.push(user.id);
     await roomsService.update(room.id, roomFormValues);
 
     socket.join(roomCode);
+
+    const quizzes = await this.quizzesService.getMany({ collections: {
+      every: {
+        quizCollectionId: room.quizCollectionId
+      }
+    }});
+
+    socket.to(roomCode).emit(QuizzesEvents.LOADED_QUIZZES, quizzes);
+
     socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
     console.info(`User: ${user.userName} joined room ${roomCode}`);
   }
@@ -71,11 +83,11 @@ export class QuizzesSocketController {
   ) {
     const user = socket["user"] as Account;
 
-    var room = await this.roomsService.getByCode(roomCode);
+    const room = await this.roomsService.getByCode(roomCode);
 
     if (!room) return;
 
-    var roomFormValues = RoomFormValues.toFormValues(room);
+    const roomFormValues = RoomFormValues.toFormValues(room);
     if (!roomFormValues.userIds.includes(user.id))
       roomFormValues.userIds.push(user.id);
     await this.roomsService.update(room.id, roomFormValues);
@@ -92,11 +104,11 @@ export class QuizzesSocketController {
   ) {
     const user = socket["user"] as Account;
 
-    var room = await this.roomsService.getByCode(roomCode);
+    const room = await this.roomsService.getByCode(roomCode);
 
     if (!room) return;
 
-    var roomFormValues = RoomFormValues.toFormValues(room);
+    const roomFormValues = RoomFormValues.toFormValues(room);
     roomFormValues.userIds = roomFormValues.userIds.filter(
       (x) => x !== user.id
     );
@@ -131,7 +143,7 @@ export class QuizzesSocketController {
   ) {
     const user = socket["user"] as Account;
 
-    var room = await this.roomsService.getByCode(roomCode);
+    const room = await this.roomsService.getByCode(roomCode);
 
     if (!room || !room.ownerId || room.ownerId !== user.id) return;
 

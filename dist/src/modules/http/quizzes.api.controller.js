@@ -18,10 +18,9 @@ const client_1 = require("@prisma/client");
 const quizzes_service_1 = require("../../libs/services/quizzes.service");
 const typedi_1 = require("typedi");
 let QuizzesController = class QuizzesController {
-    constructor(injectedQuizzesService) {
-        this.injectedQuizzesService = injectedQuizzesService;
+    constructor(quizzesService) {
+        this.quizzesService = quizzesService;
         this.prisma = new client_1.PrismaClient();
-        this.quizzesService = injectedQuizzesService;
     }
     getQuizzes() {
         return this.quizzesService.getMany();

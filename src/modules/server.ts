@@ -72,7 +72,10 @@ const routingControllerOptions: RoutingControllersOptions = {
       // Verify the token using the same key and algorithm used in your ASP.NET Core app
       const decoded = jwt.verify(token, process.env.TOKEN_KEY, {
         algorithms: ["HS256"],
+        ignoreExpiration: true
       });
+
+      // ! Ignore Expiration is on
 
       // Check if the decoded token has the necessary roles
       // You might want to customize this part based on your token structure

@@ -29,10 +29,12 @@ const room_1 = require("../../models/room");
 const rooms_events_1 = require("../../libs/events/rooms.events");
 const sockets_events_1 = require("../../libs/events/sockets.events");
 const socket_io_1 = require("socket.io");
+const quizzes_events_1 = require("../../libs/events/quizzes.events");
+const quizCollections_service_1 = require("../../libs/services/quizCollections.service");
 let QuizzesSocketController = class QuizzesSocketController {
-    constructor(injectedRoomsService) {
-        this.injectedRoomsService = injectedRoomsService;
-        this.roomsService = injectedRoomsService;
+    constructor(roomsService, quizCollectionsService) {
+        this.roomsService = roomsService;
+        this.quizCollectionsService = quizCollectionsService;
     }
     connection(socket) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -50,14 +52,18 @@ let QuizzesSocketController = class QuizzesSocketController {
                 roomCode = roomCodeParam.join("");
             }
             roomCode = roomCodeParam;
-            var room = yield roomsService.getByCode(roomCode);
+            const room = yield roomsService.getByCode(roomCode);
             if (!room)
                 return;
-            var roomFormValues = room_1.RoomFormValues.toFormValues(room);
+            const roomFormValues = room_1.RoomFormValues.toFormValues(room);
             if (!roomFormValues.userIds.includes(user.id))
                 roomFormValues.userIds.push(user.id);
             yield roomsService.update(room.id, roomFormValues);
             socket.join(roomCode);
+            const quizCollection = yield this.quizCollectionsService.get(room.quizCollectionId);
+            socket
+                .to(roomCode)
+                .emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizCollection);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             console.info(`User: ${user.userName} joined room ${roomCode}`);
         });
@@ -68,10 +74,10 @@ let QuizzesSocketController = class QuizzesSocketController {
     joinRoom(socket, { roomCode }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = socket["user"];
-            var room = yield this.roomsService.getByCode(roomCode);
+            const room = yield this.roomsService.getByCode(roomCode);
             if (!room)
                 return;
-            var roomFormValues = room_1.RoomFormValues.toFormValues(room);
+            const roomFormValues = room_1.RoomFormValues.toFormValues(room);
             if (!roomFormValues.userIds.includes(user.id))
                 roomFormValues.userIds.push(user.id);
             yield this.roomsService.update(room.id, roomFormValues);
@@ -83,10 +89,10 @@ let QuizzesSocketController = class QuizzesSocketController {
     leaveRoom(socket, { roomCode }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = socket["user"];
-            var room = yield this.roomsService.getByCode(roomCode);
+            const room = yield this.roomsService.getByCode(roomCode);
             if (!room)
                 return;
-            var roomFormValues = room_1.RoomFormValues.toFormValues(room);
+            const roomFormValues = room_1.RoomFormValues.toFormValues(room);
             roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== user.id);
             yield this.roomsService.update(room.id, roomFormValues);
             socket.leave(roomCode);
@@ -108,7 +114,7 @@ let QuizzesSocketController = class QuizzesSocketController {
     endRoom(socket, { roomCode }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = socket["user"];
-            var room = yield this.roomsService.getByCode(roomCode);
+            const room = yield this.roomsService.getByCode(roomCode);
             if (!room || !room.ownerId || room.ownerId !== user.id)
                 return;
             yield this.roomsService.end(room.id);
@@ -168,6 +174,6 @@ __decorate([
 exports.QuizzesSocketController = QuizzesSocketController = __decorate([
     (0, socket_controllers_1.SocketController)(QuizzesSocketController.namespace),
     (0, typedi_1.Service)(),
-    __metadata("design:paramtypes", [rooms_service_1.RoomsService])
+    __metadata("design:paramtypes", [rooms_service_1.RoomsService, quizCollections_service_1.QuizCollectionsService])
 ], QuizzesSocketController);
 //# sourceMappingURL=quizzes.socket.controller.js.map
