@@ -33,6 +33,12 @@ class RoomsController {
     return this.roomsService.get(roomId);
   }
 
+  @HttpCode(200)
+  @Get("/code/:code")
+  getRoomByCode(@Param("code") code: string) {
+    return this.roomsService.getByCode(code);
+  }
+
   @HttpCode(201)
   @Post()
   insertRoom(@Body() roomFormValues: RoomFormValues) {

@@ -11,15 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const routing_controllers_1 = require("routing-controllers");
 const room_1 = require("../../models/room");
@@ -40,9 +31,7 @@ let RoomsController = class RoomsController {
         return this.roomsService.create(roomFormValues);
     }
     updateRoom(roomId, roomFormValues) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.roomsService.update(roomId, roomFormValues);
-        });
+        return this.roomsService.update(roomId, roomFormValues);
     }
     deleteRoom(roomId) {
         return this.roomsService.delete(roomId);
@@ -73,16 +62,16 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "insertRoom", null);
 __decorate([
-    (0, routing_controllers_1.HttpCode)(204),
+    (0, routing_controllers_1.OnUndefined)(204),
     (0, routing_controllers_1.Put)("/:roomId"),
     __param(0, (0, routing_controllers_1.Param)("roomId")),
     __param(1, (0, routing_controllers_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, room_1.RoomFormValues]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "updateRoom", null);
 __decorate([
-    (0, routing_controllers_1.HttpCode)(204),
+    (0, routing_controllers_1.HttpCode)(200),
     (0, routing_controllers_1.Delete)("/:roomId"),
     __param(0, (0, routing_controllers_1.Param)("roomId")),
     __metadata("design:type", Function),

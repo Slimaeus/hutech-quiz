@@ -16,6 +16,14 @@ export class RoomsService {
     });
   }
 
+  getByCode(code: string) : Promise<Room> {
+    return this.prisma.room.findFirst({
+      where: {
+        code: code,
+      },
+    });
+  }
+
   create(data: RoomFormValues) {
     return this.prisma.room.create({
       data: data,

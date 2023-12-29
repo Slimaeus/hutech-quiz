@@ -15,10 +15,32 @@ const rooms_service_1 = require("../../libs/services/rooms.service");
 const room_1 = require("../../models/room");
 class QuizzesSocket {
     handleConnection(socket) {
-        console.info("Quizzes namespace is working...");
-        socket.emit(sockets_events_1.SocketsEvents.STARTED, "Quizzes namespace is working...");
-        const user = socket["user"];
-        socket.emit("load_user", user);
+        return __awaiter(this, void 0, void 0, function* () {
+            const roomsService = new rooms_service_1.RoomsService();
+            const user = socket["user"];
+            console.info("Quizzes namespace is working...");
+            socket.emit(sockets_events_1.SocketsEvents.STARTED, "Quizzes namespace is working...");
+            socket.emit("load_user", user);
+            const roomIdParam = socket.handshake.query["roomId"];
+            let roomId = "";
+            if (!roomIdParam)
+                return;
+            if (Array.isArray(roomIdParam) &&
+                roomIdParam.every((item) => typeof item === "string")) {
+                roomId = roomIdParam.join("");
+            }
+            roomId = roomIdParam;
+            var room = yield roomsService.get(roomId);
+            if (!room)
+                return;
+            var roomFormValues = room_1.RoomFormValues.toFormValues(room);
+            if (!roomFormValues.userIds.includes(user.id))
+                roomFormValues.userIds.push(user.id);
+            yield roomsService.update(roomId, roomFormValues);
+            socket.join(roomId);
+            socket.to(roomId).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
+            console.info(`User: ${user.userName} joined room ${roomId}`);
+        });
     }
     middlewareImplementation(socket, next) {
         socket
@@ -43,7 +65,7 @@ class QuizzesSocket {
             if (!room)
                 return;
             var roomFormValues = room_1.RoomFormValues.toFormValues(room);
-            roomFormValues.userIds = roomFormValues.userIds.filter(x => x !== user.id);
+            roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== user.id);
             yield roomsService.update(roomId, roomFormValues);
             socket.leave(roomId);
             socket.to(roomId).emit(rooms_events_1.RoomsEvents.LEFT_ROOM, user);
