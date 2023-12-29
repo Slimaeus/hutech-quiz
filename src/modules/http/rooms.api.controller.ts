@@ -17,17 +17,19 @@ import { PrismaClient } from "@prisma/client";
 import { RoomsService } from "../../libs/services/rooms.service";
 import { Account } from "../../models/account";
 import { Service } from "typedi";
+import Websocket from "../websocket/webSocket";
+import { QuizzesSocketController } from "../websocket/quizzes.socket.controller";
+import { RoomsEvents } from "../../libs/events/rooms.events";
 
 @Service()
 @JsonController("/api/v1/rooms", { transformResponse: true })
 class RoomsController {
-  private readonly roomsService: RoomsService;
-
   prisma: PrismaClient = new PrismaClient();
-  
-  constructor(private readonly injectedRoomsService: RoomsService) {
-    this.roomsService = injectedRoomsService;
-  }
+
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly websocket: Websocket,
+  ) {}
 
   @HttpCode(200)
   @Authorized()
@@ -61,19 +63,36 @@ class RoomsController {
 
   @OnUndefined(204)
   @Patch("/:roomId/start")
-  startRoom(@Param("roomId") roomId: string) {
-    const roomFormValues = new RoomFormValues();
-    roomFormValues.isStarted = true;
-    roomFormValues.startedAt = new Date();
-    return this.roomsService.update(roomId, roomFormValues);
+  async startRoom(@Param("roomId") roomId: string) {
+    const room = await this.roomsService.get(roomId);
+    const roomCode = room.code;
+    if (!roomCode) return;
+    await this.roomsService.start(roomId);
+    this.websocket.of(QuizzesSocketController.namespace).emit(RoomsEvents.STARTED_ROOM, roomCode);
   }
 
   @OnUndefined(204)
   @Patch("/:roomId/stop")
-  stopRoom(@Param("roomId") roomId: string) {
-    const roomFormValues = new RoomFormValues();
-    roomFormValues.isStarted = false;
-    return this.roomsService.update(roomId, roomFormValues);
+  async stopRoom(@Param("roomId") roomId: string) {
+    const room = await this.roomsService.get(roomId);
+    const roomCode = room.code;
+    if (!roomCode) return;
+    await this.roomsService.end(roomId);
+    this.websocket.of(QuizzesSocketController.namespace).emit(RoomsEvents.ENDED_ROOM, roomCode);
+  }
+
+  @OnUndefined(204)
+  @Patch("/code/:code/start")
+  async startRoomByCode(@Param("code") code: string) {
+    await this.roomsService.startByCode(code);
+    this.websocket.of(QuizzesSocketController.namespace).to(code).emit(RoomsEvents.STARTED_ROOM, code);
+  }
+
+  @OnUndefined(204)
+  @Patch("code/:code/stop")
+  async stopRoomByCode(@Param("code") code: string) {
+    await this.roomsService.endByCode(code);
+    this.websocket.of(QuizzesSocketController.namespace).to(code).emit(RoomsEvents.ENDED_ROOM, code);
   }
 
   @OnUndefined(204)

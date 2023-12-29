@@ -12,6 +12,7 @@ import { RoomFormValues } from "../../models/room";
 import { RoomsEvents } from "../../libs/events/rooms.events";
 import { Account } from "../../models/account";
 import { SocketsEvents } from "../../libs/events/sockets.events";
+import { Socket } from "socket.io";
 
 @SocketController(QuizzesSocketController.namespace)
 @Service()
@@ -25,7 +26,7 @@ export class QuizzesSocketController {
   }
 
   @OnConnect()
-  async connection(@ConnectedSocket() socket: any) {
+  async connection(@ConnectedSocket() socket: Socket) {
     const roomsService: RoomsService = new RoomsService();
     const user = socket["user"] as Account;
 
@@ -59,13 +60,13 @@ export class QuizzesSocketController {
   }
 
   @OnDisconnect()
-  disconnect(@ConnectedSocket() socket: any) {
+  disconnect(@ConnectedSocket() socket: Socket) {
     console.info("client disconnected");
   }
 
   @OnMessage(RoomsEvents.JOIN_ROOM)
   async joinRoom(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() { roomCode }: { roomCode: string }
   ) {
     const user = socket["user"] as Account;
@@ -86,7 +87,7 @@ export class QuizzesSocketController {
 
   @OnMessage(RoomsEvents.LEAVE_ROOM)
   async leaveRoom(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() { roomCode }: { roomCode: string }
   ) {
     const user = socket["user"] as Account;
@@ -108,7 +109,7 @@ export class QuizzesSocketController {
 
   @OnMessage(RoomsEvents.START_ROOM)
   async startRoom(
-    @ConnectedSocket() socket: any,
+    @ConnectedSocket() socket: Socket,
     @MessageBody() { roomCode }: { roomCode: string }
   ) {
     const user = socket["user"] as Account;
@@ -117,12 +118,26 @@ export class QuizzesSocketController {
 
     if (!room || !room.ownerId || room.ownerId !== user.id) return;
 
-    var roomFormValues = RoomFormValues.toFormValues(room);
-    roomFormValues.isStarted = true;
-    roomFormValues.startedAt = new Date();
-    await this.roomsService.update(room.id, roomFormValues);
+    await this.roomsService.start(room.id);
 
-    socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room);
+    socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room.id);
+    console.info(`User: ${user.userName} start room ${roomCode}`);
+  }
+
+  @OnMessage(RoomsEvents.END_ROOM)
+  async endRoom(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() { roomCode }: { roomCode: string }
+  ) {
+    const user = socket["user"] as Account;
+
+    var room = await this.roomsService.getByCode(roomCode);
+
+    if (!room || !room.ownerId || room.ownerId !== user.id) return;
+
+    await this.roomsService.end(room.id);
+
+    socket.to(roomCode).emit(RoomsEvents.ENDED_ROOM, room.id);
     console.info(`User: ${user.userName} start room ${roomCode}`);
   }
 }

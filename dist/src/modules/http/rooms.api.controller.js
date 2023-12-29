@@ -11,6 +11,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const routing_controllers_1 = require("routing-controllers");
 const room_1 = require("../../models/room");
@@ -18,11 +30,14 @@ const client_1 = require("@prisma/client");
 const rooms_service_1 = require("../../libs/services/rooms.service");
 const account_1 = require("../../models/account");
 const typedi_1 = require("typedi");
+const webSocket_1 = __importDefault(require("../websocket/webSocket"));
+const quizzes_socket_controller_1 = require("../websocket/quizzes.socket.controller");
+const rooms_events_1 = require("../../libs/events/rooms.events");
 let RoomsController = class RoomsController {
-    constructor(injectedRoomsService) {
-        this.injectedRoomsService = injectedRoomsService;
+    constructor(roomsService, websocket) {
+        this.roomsService = roomsService;
+        this.websocket = websocket;
         this.prisma = new client_1.PrismaClient();
-        this.roomsService = injectedRoomsService;
     }
     getRooms() {
         return this.roomsService.getMany();
@@ -38,15 +53,36 @@ let RoomsController = class RoomsController {
         return this.roomsService.create(roomFormValues);
     }
     startRoom(roomId) {
-        const roomFormValues = new room_1.RoomFormValues();
-        roomFormValues.isStarted = true;
-        roomFormValues.startedAt = new Date();
-        return this.roomsService.update(roomId, roomFormValues);
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.roomsService.get(roomId);
+            const roomCode = room.code;
+            if (!roomCode)
+                return;
+            yield this.roomsService.start(roomId);
+            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, roomCode);
+        });
     }
     stopRoom(roomId) {
-        const roomFormValues = new room_1.RoomFormValues();
-        roomFormValues.isStarted = false;
-        return this.roomsService.update(roomId, roomFormValues);
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.roomsService.get(roomId);
+            const roomCode = room.code;
+            if (!roomCode)
+                return;
+            yield this.roomsService.end(roomId);
+            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).emit(rooms_events_1.RoomsEvents.ENDED_ROOM, roomCode);
+        });
+    }
+    startRoomByCode(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.roomsService.startByCode(code);
+            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).to(code).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, code);
+        });
+    }
+    stopRoomByCode(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.roomsService.endByCode(code);
+            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).to(code).emit(rooms_events_1.RoomsEvents.ENDED_ROOM, code);
+        });
     }
     updateRoom(roomId, roomFormValues) {
         return this.roomsService.update(roomId, roomFormValues);
@@ -96,7 +132,7 @@ __decorate([
     __param(0, (0, routing_controllers_1.Param)("roomId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], RoomsController.prototype, "startRoom", null);
 __decorate([
     (0, routing_controllers_1.OnUndefined)(204),
@@ -104,8 +140,24 @@ __decorate([
     __param(0, (0, routing_controllers_1.Param)("roomId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], RoomsController.prototype, "stopRoom", null);
+__decorate([
+    (0, routing_controllers_1.OnUndefined)(204),
+    (0, routing_controllers_1.Patch)("/code/:code/start"),
+    __param(0, (0, routing_controllers_1.Param)("code")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], RoomsController.prototype, "startRoomByCode", null);
+__decorate([
+    (0, routing_controllers_1.OnUndefined)(204),
+    (0, routing_controllers_1.Patch)("code/:code/stop"),
+    __param(0, (0, routing_controllers_1.Param)("code")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], RoomsController.prototype, "stopRoomByCode", null);
 __decorate([
     (0, routing_controllers_1.OnUndefined)(204),
     (0, routing_controllers_1.Put)("/:roomId"),
@@ -126,7 +178,8 @@ __decorate([
 RoomsController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/api/v1/rooms", { transformResponse: true }),
-    __metadata("design:paramtypes", [rooms_service_1.RoomsService])
+    __metadata("design:paramtypes", [rooms_service_1.RoomsService,
+        webSocket_1.default])
 ], RoomsController);
 exports.default = RoomsController;
 //# sourceMappingURL=rooms.api.controller.js.map

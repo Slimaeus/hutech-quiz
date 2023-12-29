@@ -48,4 +48,50 @@ export class RoomsService {
       },
     });
   }
+
+  async start(id: string) {
+    await this.prisma.room.update({
+      where: {
+        id: id
+      },
+      data: {
+        isStarted: true,
+        startedAt: new Date()
+      },
+    });
+  }
+
+  async startByCode(code: string) {
+    await this.prisma.room.update({
+      where: {
+        code: code
+      },
+      data: {
+        isStarted: true,
+        startedAt: new Date()
+      },
+    });
+  }
+
+  async end(id: string) {
+    await this.prisma.room.update({
+      where: {
+        id: id
+      },
+      data: {
+        isStarted: false,
+      },
+    });
+  }
+
+  async endByCode(code: string) {
+    await this.prisma.room.update({
+      where: {
+        code: code
+      },
+      data: {
+        isStarted: false,
+      },
+    });
+  }
 }

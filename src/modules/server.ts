@@ -98,6 +98,7 @@ httpServer.listen(port, () => {
 });
 
 const io = Websocket.getInstance(httpServer);
+Container.set(Websocket, io);
 
 new SocketControllers({
   io,

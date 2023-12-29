@@ -61,6 +61,56 @@ let RoomsService = class RoomsService {
             },
         });
     }
+    start(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.prisma.room.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    isStarted: true,
+                    startedAt: new Date()
+                },
+            });
+        });
+    }
+    startByCode(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.prisma.room.update({
+                where: {
+                    code: code
+                },
+                data: {
+                    isStarted: true,
+                    startedAt: new Date()
+                },
+            });
+        });
+    }
+    end(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.prisma.room.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    isStarted: false,
+                },
+            });
+        });
+    }
+    endByCode(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.prisma.room.update({
+                where: {
+                    code: code
+                },
+                data: {
+                    isStarted: false,
+                },
+            });
+        });
+    }
 };
 exports.RoomsService = RoomsService;
 exports.RoomsService = RoomsService = __decorate([

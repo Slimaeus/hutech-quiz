@@ -6,5 +6,8 @@ export const RoomsEvents = {
   LEFT_ROOM: "left_room",
 
   START_ROOM: "start_room",
-  STARTED_ROOM: "started_room"
+  STARTED_ROOM: "started_room",
+
+  END_ROOM: "end_room",
+  ENDED_ROOM: "ended_room"
 };

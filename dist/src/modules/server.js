@@ -91,12 +91,11 @@ httpServer.listen(port, () => {
     console.log(`This is working in port ${port}`);
 });
 const io = webSocket_1.default.getInstance(httpServer);
+typedi_1.default.set(webSocket_1.default, io);
 new socket_controllers_1.SocketControllers({
     io,
     container: typedi_1.default,
     controllers: [`${__dirname}/websocket/*.socket.controller.*`],
+    middlewares: [`${__dirname}/websocket/middlewares/*.socket.middleware.*`],
 });
-// io.initializeHandlers([
-//   { path: '/hubs/quizzes', handler: new QuizzesSocket(), isAuthorized: true }
-// ]);
 //# sourceMappingURL=server.js.map
