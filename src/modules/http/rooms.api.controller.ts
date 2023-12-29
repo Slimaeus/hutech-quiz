@@ -20,6 +20,7 @@ import { Service } from "typedi";
 import Websocket from "../websocket/webSocket";
 import { QuizzesSocketController } from "../websocket/quizzes.socket.controller";
 import { RoomsEvents } from "../../libs/events/rooms.events";
+import randomstring from "randomstring";
 
 @Service()
 @JsonController("/api/v1/rooms", { transformResponse: true })
@@ -28,7 +29,7 @@ class RoomsController {
 
   constructor(
     private readonly roomsService: RoomsService,
-    private readonly websocket: Websocket,
+    private readonly websocket: Websocket
   ) {}
 
   @HttpCode(200)
@@ -57,6 +58,10 @@ class RoomsController {
     @Body() roomFormValues: RoomFormValues,
     @CurrentUser() user: Account
   ) {
+    const code = randomstring.generate({
+      length: 6,
+    });
+    roomFormValues.code = code;
     roomFormValues.ownerId = user.id;
     return this.roomsService.create(roomFormValues);
   }
@@ -68,7 +73,9 @@ class RoomsController {
     const roomCode = room.code;
     if (!roomCode) return;
     await this.roomsService.start(roomId);
-    this.websocket.of(QuizzesSocketController.namespace).emit(RoomsEvents.STARTED_ROOM, roomCode);
+    this.websocket
+      .of(QuizzesSocketController.namespace)
+      .emit(RoomsEvents.STARTED_ROOM, roomCode);
   }
 
   @OnUndefined(204)
@@ -78,21 +85,29 @@ class RoomsController {
     const roomCode = room.code;
     if (!roomCode) return;
     await this.roomsService.end(roomId);
-    this.websocket.of(QuizzesSocketController.namespace).emit(RoomsEvents.ENDED_ROOM, roomCode);
+    this.websocket
+      .of(QuizzesSocketController.namespace)
+      .emit(RoomsEvents.ENDED_ROOM, roomCode);
   }
 
   @OnUndefined(204)
   @Patch("/code/:code/start")
   async startRoomByCode(@Param("code") code: string) {
     await this.roomsService.startByCode(code);
-    this.websocket.of(QuizzesSocketController.namespace).to(code).emit(RoomsEvents.STARTED_ROOM, code);
+    this.websocket
+      .of(QuizzesSocketController.namespace)
+      .to(code)
+      .emit(RoomsEvents.STARTED_ROOM, code);
   }
 
   @OnUndefined(204)
   @Patch("code/:code/stop")
   async stopRoomByCode(@Param("code") code: string) {
     await this.roomsService.endByCode(code);
-    this.websocket.of(QuizzesSocketController.namespace).to(code).emit(RoomsEvents.ENDED_ROOM, code);
+    this.websocket
+      .of(QuizzesSocketController.namespace)
+      .to(code)
+      .emit(RoomsEvents.ENDED_ROOM, code);
   }
 
   @OnUndefined(204)

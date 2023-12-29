@@ -33,6 +33,7 @@ const typedi_1 = require("typedi");
 const webSocket_1 = __importDefault(require("../websocket/webSocket"));
 const quizzes_socket_controller_1 = require("../websocket/quizzes.socket.controller");
 const rooms_events_1 = require("../../libs/events/rooms.events");
+const randomstring_1 = __importDefault(require("randomstring"));
 let RoomsController = class RoomsController {
     constructor(roomsService, websocket) {
         this.roomsService = roomsService;
@@ -49,6 +50,10 @@ let RoomsController = class RoomsController {
         return this.roomsService.getByCode(code);
     }
     insertRoom(roomFormValues, user) {
+        const code = randomstring_1.default.generate({
+            length: 6,
+        });
+        roomFormValues.code = code;
         roomFormValues.ownerId = user.id;
         return this.roomsService.create(roomFormValues);
     }
@@ -59,7 +64,9 @@ let RoomsController = class RoomsController {
             if (!roomCode)
                 return;
             yield this.roomsService.start(roomId);
-            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, roomCode);
+            this.websocket
+                .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .emit(rooms_events_1.RoomsEvents.STARTED_ROOM, roomCode);
         });
     }
     stopRoom(roomId) {
@@ -69,19 +76,27 @@ let RoomsController = class RoomsController {
             if (!roomCode)
                 return;
             yield this.roomsService.end(roomId);
-            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).emit(rooms_events_1.RoomsEvents.ENDED_ROOM, roomCode);
+            this.websocket
+                .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .emit(rooms_events_1.RoomsEvents.ENDED_ROOM, roomCode);
         });
     }
     startRoomByCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.roomsService.startByCode(code);
-            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).to(code).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, code);
+            this.websocket
+                .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .to(code)
+                .emit(rooms_events_1.RoomsEvents.STARTED_ROOM, code);
         });
     }
     stopRoomByCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.roomsService.endByCode(code);
-            this.websocket.of(quizzes_socket_controller_1.QuizzesSocketController.namespace).to(code).emit(rooms_events_1.RoomsEvents.ENDED_ROOM, code);
+            this.websocket
+                .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .to(code)
+                .emit(rooms_events_1.RoomsEvents.ENDED_ROOM, code);
         });
     }
     updateRoom(roomId, roomFormValues) {
