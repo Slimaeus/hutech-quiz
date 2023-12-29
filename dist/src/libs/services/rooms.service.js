@@ -25,6 +25,13 @@ class RoomsService {
             },
         });
     }
+    getByCode(code) {
+        return this.prisma.room.findFirst({
+            where: {
+                code: code,
+            },
+        });
+    }
     create(data) {
         return this.prisma.room.create({
             data: data,

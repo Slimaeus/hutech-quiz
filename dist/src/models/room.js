@@ -14,15 +14,13 @@ exports.RoomFormValues = void 0;
 //   }
 // }
 class RoomFormValues {
-    constructor() {
-        this.userIds = [];
-    }
     static toFormValues(room) {
         const roomFormValues = new RoomFormValues();
         roomFormValues.code = room.code;
         roomFormValues.userIds = room.userIds;
         roomFormValues.isStarted = room.isStarted;
         roomFormValues.startedAt = room.startedAt;
+        roomFormValues.ownerId = room.ownerId;
         roomFormValues.quizCollectionId = room.quizCollectionId;
         return roomFormValues;
     }

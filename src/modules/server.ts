@@ -10,6 +10,7 @@ import {
 } from "routing-controllers";
 import Websocket from "./websocket/webSocket";
 import QuizzesSocket from "./websocket/quizzes.socket";
+import { Account } from "../models/account";
 
 const port = process.env.APP_PORT || 3000;
 
@@ -20,6 +21,32 @@ const routingControllerOptions: RoutingControllersOptions = {
   classTransformer: true,
   cors: false,
   defaultErrorHandler: true,
+  currentUserChecker: (action: Action) => {
+    const authorizationHeader : string = action.request.headers["authorization"];
+    const scheme = "bearer";
+    // const isTest = true;
+    // if (isTest) return isTest;
+    if (!authorizationHeader || !authorizationHeader.toLowerCase().startsWith(scheme)) {
+      return false;
+    }
+
+    const token : string = authorizationHeader.substring(scheme.length).trim();
+
+    if (!token) return false;
+
+    try {
+      // Verify the token using the same key and algorithm used in your ASP.NET Core app
+      const decoded = jwt.verify(token, process.env.TOKEN_KEY, {
+        algorithms: ["HS256"],
+        ignoreExpiration: true
+      });
+
+      return Account.fromJson(decoded as jwt.JwtPayload);;
+    } catch (error) {
+      // Token is invalid or expired
+      return undefined;
+    }
+  },
   authorizationChecker: async (action: Action, roles: string[]) => {
     const authorizationHeader : string = action.request.headers["authorization"];
     const scheme = "bearer";

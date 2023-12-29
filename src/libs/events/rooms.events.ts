@@ -4,4 +4,7 @@ export const RoomsEvents = {
   
   JOINED_ROOM: "joined_room",
   LEFT_ROOM: "left_room",
+
+  START_ROOM: "start_room",
+  STARTED_ROOM: "started_room"
 };

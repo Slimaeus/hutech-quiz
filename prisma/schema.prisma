@@ -48,9 +48,10 @@ model QuizToQuizCollection {
 
 model Room {
   id               String          @id @default(auto()) @map("_id") @db.ObjectId
-  code             String
+  code             String          @unique
   isStarted        Boolean         @default(false)
   startedAt        DateTime?
+  ownerId          String?
   userIds          String[]
   quizCollectionId String?         @unique @db.ObjectId
   quizCollection   QuizCollection? @relation(fields: [quizCollectionId], references: [id])

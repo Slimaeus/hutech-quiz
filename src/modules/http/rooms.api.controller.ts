@@ -10,10 +10,12 @@ import {
   Authorized,
   OnUndefined,
   Patch,
+  CurrentUser,
 } from "routing-controllers";
 import { RoomFormValues } from "../../models/room";
 import { PrismaClient } from "@prisma/client";
 import { RoomsService } from "../../libs/services/rooms.service";
+import { Account } from "../../models/account";
 
 @JsonController("/api/v1/rooms", { transformResponse: true })
 class RoomsController {
@@ -40,17 +42,20 @@ class RoomsController {
     return this.roomsService.getByCode(code);
   }
 
+  @Authorized()
   @HttpCode(201)
   @Post()
-  insertRoom(@Body() roomFormValues: RoomFormValues) {
+  insertRoom(
+    @Body() roomFormValues: RoomFormValues,
+    @CurrentUser() user: Account
+  ) {
+    roomFormValues.ownerId = user.id;
     return this.roomsService.create(roomFormValues);
   }
 
   @OnUndefined(204)
   @Patch("/:roomId/start")
-  startRoom(
-    @Param("roomId") roomId: string
-  ) {
+  startRoom(@Param("roomId") roomId: string) {
     const roomFormValues = new RoomFormValues();
     roomFormValues.isStarted = true;
     roomFormValues.startedAt = new Date();
@@ -59,9 +64,7 @@ class RoomsController {
 
   @OnUndefined(204)
   @Patch("/:roomId/stop")
-  stopRoom(
-    @Param("roomId") roomId: string
-  ) {
+  stopRoom(@Param("roomId") roomId: string) {
     const roomFormValues = new RoomFormValues();
     roomFormValues.isStarted = false;
     return this.roomsService.update(roomId, roomFormValues);

@@ -21,55 +21,69 @@ class QuizzesSocket {
             console.info("Quizzes namespace is working...");
             socket.emit(sockets_events_1.SocketsEvents.STARTED, "Quizzes namespace is working...");
             socket.emit("load_user", user);
-            const roomIdParam = socket.handshake.query["roomId"];
-            let roomId = "";
-            if (!roomIdParam)
+            const roomCodeParam = socket.handshake.query["roomCode"];
+            let roomCode = "";
+            if (!roomCodeParam)
                 return;
-            if (Array.isArray(roomIdParam) &&
-                roomIdParam.every((item) => typeof item === "string")) {
-                roomId = roomIdParam.join("");
+            if (Array.isArray(roomCodeParam) &&
+                roomCodeParam.every((item) => typeof item === "string")) {
+                roomCode = roomCodeParam.join("");
             }
-            roomId = roomIdParam;
-            var room = yield roomsService.get(roomId);
+            roomCode = roomCodeParam;
+            var room = yield roomsService.getByCode(roomCode);
             if (!room)
                 return;
             var roomFormValues = room_1.RoomFormValues.toFormValues(room);
             if (!roomFormValues.userIds.includes(user.id))
                 roomFormValues.userIds.push(user.id);
-            yield roomsService.update(roomId, roomFormValues);
-            socket.join(roomId);
-            socket.to(roomId).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
-            console.info(`User: ${user.userName} joined room ${roomId}`);
+            yield roomsService.update(room.id, roomFormValues);
+            socket.join(roomCode);
+            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
+            console.info(`User: ${user.userName} joined room ${roomCode}`);
         });
     }
     middlewareImplementation(socket, next) {
         socket
-            .on(rooms_events_1.RoomsEvents.JOIN_ROOM, ({ roomId }) => __awaiter(this, void 0, void 0, function* () {
+            .on(rooms_events_1.RoomsEvents.JOIN_ROOM, ({ roomCode }) => __awaiter(this, void 0, void 0, function* () {
             const roomsService = new rooms_service_1.RoomsService();
             const user = socket["user"];
-            var room = yield roomsService.get(roomId);
+            var room = yield roomsService.getByCode(roomCode);
             if (!room)
                 return;
             var roomFormValues = room_1.RoomFormValues.toFormValues(room);
             if (!roomFormValues.userIds.includes(user.id))
                 roomFormValues.userIds.push(user.id);
-            yield roomsService.update(roomId, roomFormValues);
-            socket.join(roomId);
-            socket.to(roomId).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
-            console.info(`User: ${user.userName} joined room ${roomId}`);
+            yield roomsService.update(room.id, roomFormValues);
+            socket.join(roomCode);
+            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
+            console.info(`User: ${user.userName} joined room ${roomCode}`);
         }))
-            .on(rooms_events_1.RoomsEvents.LEAVE_ROOM, ({ roomId }) => __awaiter(this, void 0, void 0, function* () {
+            .on(rooms_events_1.RoomsEvents.LEAVE_ROOM, ({ roomCode }) => __awaiter(this, void 0, void 0, function* () {
             const roomsService = new rooms_service_1.RoomsService();
             const user = socket["user"];
-            var room = yield roomsService.get(roomId);
+            var room = yield roomsService.getByCode(roomCode);
             if (!room)
                 return;
             var roomFormValues = room_1.RoomFormValues.toFormValues(room);
             roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== user.id);
-            yield roomsService.update(roomId, roomFormValues);
-            socket.leave(roomId);
-            socket.to(roomId).emit(rooms_events_1.RoomsEvents.LEFT_ROOM, user);
-            console.info(`User: ${user.userName} left room ${roomId}`);
+            yield roomsService.update(room.id, roomFormValues);
+            socket.leave(roomCode);
+            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.LEFT_ROOM, user);
+            console.info(`User: ${user.userName} left room ${roomCode}`);
+        }))
+            .on(rooms_events_1.RoomsEvents.START_ROOM, ({ roomCode }) => __awaiter(this, void 0, void 0, function* () {
+            const roomsService = new rooms_service_1.RoomsService();
+            const user = socket["user"];
+            var room = yield roomsService.getByCode(roomCode);
+            if (!room || !room.ownerId || room.ownerId !== user.id)
+                return;
+            var roomFormValues = room_1.RoomFormValues.toFormValues(room);
+            roomFormValues.isStarted = true;
+            roomFormValues.startedAt = new Date();
+            yield roomsService.update(room.id, roomFormValues);
+            socket.join(roomCode);
+            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
+            console.info(`User: ${user.userName} joined room ${roomCode}`);
         }));
         return next();
     }

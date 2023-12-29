@@ -39,7 +39,6 @@ class QuizzesSocket implements SocketHandler {
     socket.join(roomCode);
     socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
     console.info(`User: ${user.userName} joined room ${roomCode}`);
-
   }
 
   middlewareImplementation(socket: Socket, next: NextFunction) {
@@ -61,24 +60,46 @@ class QuizzesSocket implements SocketHandler {
         socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
         console.info(`User: ${user.userName} joined room ${roomCode}`);
       })
-      .on(RoomsEvents.LEAVE_ROOM, async ({ roomCode }: { roomCode: string }) => {
-        const roomsService: RoomsService = new RoomsService();
-        const user = socket["user"] as Account;
+      .on(
+        RoomsEvents.LEAVE_ROOM,
+        async ({ roomCode }: { roomCode: string }) => {
+          const roomsService: RoomsService = new RoomsService();
+          const user = socket["user"] as Account;
 
-        var room = await roomsService.getByCode(roomCode);
+          var room = await roomsService.getByCode(roomCode);
 
-        if (!room) return;
+          if (!room) return;
 
-        var roomFormValues = RoomFormValues.toFormValues(room);
-        roomFormValues.userIds = roomFormValues.userIds.filter(
-          (x) => x !== user.id
-        );
-        await roomsService.update(room.id, roomFormValues);
+          var roomFormValues = RoomFormValues.toFormValues(room);
+          roomFormValues.userIds = roomFormValues.userIds.filter(
+            (x) => x !== user.id
+          );
+          await roomsService.update(room.id, roomFormValues);
 
-        socket.leave(roomCode);
-        socket.to(roomCode).emit(RoomsEvents.LEFT_ROOM, user);
-        console.info(`User: ${user.userName} left room ${roomCode}`);
-      });
+          socket.leave(roomCode);
+          socket.to(roomCode).emit(RoomsEvents.LEFT_ROOM, user);
+          console.info(`User: ${user.userName} left room ${roomCode}`);
+        }
+      )
+      .on(
+        RoomsEvents.START_ROOM,
+        async ({ roomCode }: { roomCode: string }) => {
+          const roomsService: RoomsService = new RoomsService();
+          const user = socket["user"] as Account;
+
+          var room = await roomsService.getByCode(roomCode);
+
+          if (!room || !room.ownerId || room.ownerId !== user.id) return;
+
+          var roomFormValues = RoomFormValues.toFormValues(room);
+          roomFormValues.isStarted = true;
+          roomFormValues.startedAt = new Date();
+          await roomsService.update(room.id, roomFormValues);
+          
+          socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room);
+          console.info(`User: ${user.userName} start room ${roomCode}`);
+        }
+      );
     return next();
   }
 }

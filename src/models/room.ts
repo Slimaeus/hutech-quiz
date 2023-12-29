@@ -19,6 +19,7 @@ export class RoomFormValues {
   code: string;
   isStarted: boolean;
   startedAt?: Date;
+  ownerId?: string;
   userIds?: string[];
   quizCollectionId?: string;
 
@@ -28,6 +29,7 @@ export class RoomFormValues {
     roomFormValues.userIds = room.userIds;
     roomFormValues.isStarted = room.isStarted;
     roomFormValues.startedAt = room.startedAt;
+    roomFormValues.ownerId = room.ownerId;
     roomFormValues.quizCollectionId = room.quizCollectionId;
     return roomFormValues;
   }

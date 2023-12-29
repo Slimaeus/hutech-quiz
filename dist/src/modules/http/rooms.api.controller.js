@@ -27,8 +27,23 @@ let RoomsController = class RoomsController {
     getRoom(roomId) {
         return this.roomsService.get(roomId);
     }
-    insertRoom(roomFormValues) {
+    getRoomByCode(code) {
+        return this.roomsService.getByCode(code);
+    }
+    insertRoom(roomFormValues, user) {
+        console.log(user);
         return this.roomsService.create(roomFormValues);
+    }
+    startRoom(roomId) {
+        const roomFormValues = new room_1.RoomFormValues();
+        roomFormValues.isStarted = true;
+        roomFormValues.startedAt = new Date();
+        return this.roomsService.update(roomId, roomFormValues);
+    }
+    stopRoom(roomId) {
+        const roomFormValues = new room_1.RoomFormValues();
+        roomFormValues.isStarted = false;
+        return this.roomsService.update(roomId, roomFormValues);
     }
     updateRoom(roomId, roomFormValues) {
         return this.roomsService.update(roomId, roomFormValues);
@@ -54,13 +69,39 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "getRoom", null);
 __decorate([
+    (0, routing_controllers_1.HttpCode)(200),
+    (0, routing_controllers_1.Get)("/code/:code"),
+    __param(0, (0, routing_controllers_1.Param)("code")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], RoomsController.prototype, "getRoomByCode", null);
+__decorate([
+    (0, routing_controllers_1.Authorized)(),
     (0, routing_controllers_1.HttpCode)(201),
     (0, routing_controllers_1.Post)(),
     __param(0, (0, routing_controllers_1.Body)()),
+    __param(1, (0, routing_controllers_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [room_1.RoomFormValues]),
+    __metadata("design:paramtypes", [room_1.RoomFormValues, Object]),
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "insertRoom", null);
+__decorate([
+    (0, routing_controllers_1.OnUndefined)(204),
+    (0, routing_controllers_1.Patch)("/:roomId/start"),
+    __param(0, (0, routing_controllers_1.Param)("roomId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], RoomsController.prototype, "startRoom", null);
+__decorate([
+    (0, routing_controllers_1.OnUndefined)(204),
+    (0, routing_controllers_1.Patch)("/:roomId/stop"),
+    __param(0, (0, routing_controllers_1.Param)("roomId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], RoomsController.prototype, "stopRoom", null);
 __decorate([
     (0, routing_controllers_1.OnUndefined)(204),
     (0, routing_controllers_1.Put)("/:roomId"),
