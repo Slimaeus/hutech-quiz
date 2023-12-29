@@ -5,11 +5,14 @@ import { Service } from "typedi";
 import { QuizzesSocketController } from "../quizzes.socket.controller";
 import { Socket } from "socket.io";
 import { NextFunction } from "express";
+import axios from "axios";
+import { User } from "../../../models/user";
+import { UnauthorizedError } from "routing-controllers";
 
 @Middleware({ namespace: QuizzesSocketController.namespace })
 @Service()
 export class AuthenticationMiddleware implements MiddlewareInterface {
-  use(socket: Socket, next: NextFunction) {
+  async use(socket: Socket, next: NextFunction) {
     try {
       const token = socket.handshake.query["access_token"];
       let tokenStr = "";
@@ -26,9 +29,25 @@ export class AuthenticationMiddleware implements MiddlewareInterface {
         ignoreExpiration: true,
       });
 
-      // ! Ignore Expiration is on 
+      const response = await axios.get<User>(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/@me`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenStr}`,
+          },
+        }
+      );
 
-      socket["user"] = Account.fromJson(decoded as jwt.JwtPayload);
+      if (response.status < 400) {
+        socket["user"] = response.data;
+      } else {
+        console.error("Get data failed", response.status, response.data);
+        throw new UnauthorizedError();
+      }
+
+      // ! Ignore Expiration is on
+
+      // socket["user"] = Account.fromJson(decoded as jwt.JwtPayload);
 
       return next();
     } catch (error) {

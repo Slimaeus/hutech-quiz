@@ -31,14 +31,15 @@ const sockets_events_1 = require("../../libs/events/sockets.events");
 const socket_io_1 = require("socket.io");
 const quizzes_events_1 = require("../../libs/events/quizzes.events");
 const quizCollections_service_1 = require("../../libs/services/quizCollections.service");
+const quizzes_service_1 = require("../../libs/services/quizzes.service");
 let QuizzesSocketController = class QuizzesSocketController {
-    constructor(roomsService, quizCollectionsService) {
+    constructor(roomsService, quizCollectionsService, quizzesService) {
         this.roomsService = roomsService;
         this.quizCollectionsService = quizCollectionsService;
+        this.quizzesService = quizzesService;
     }
     connection(socket) {
         return __awaiter(this, void 0, void 0, function* () {
-            const roomsService = new rooms_service_1.RoomsService();
             const user = socket["user"];
             console.info("Quizzes namespace is working...");
             socket.emit(sockets_events_1.SocketsEvents.STARTED, "Quizzes namespace is working...");
@@ -52,18 +53,20 @@ let QuizzesSocketController = class QuizzesSocketController {
                 roomCode = roomCodeParam.join("");
             }
             roomCode = roomCodeParam;
-            const room = yield roomsService.getByCode(roomCode);
+            const room = yield this.roomsService.getByCode(roomCode);
             if (!room)
                 return;
             const roomFormValues = room_1.RoomFormValues.toFormValues(room);
             if (!roomFormValues.userIds.includes(user.id))
                 roomFormValues.userIds.push(user.id);
-            yield roomsService.update(room.id, roomFormValues);
+            yield this.roomsService.update(room.id, roomFormValues);
             socket.join(roomCode);
-            const quizCollection = yield this.quizCollectionsService.get(room.quizCollectionId);
-            socket
-                .to(roomCode)
-                .emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizCollection);
+            const quizzes = yield this.quizzesService.getMany({ collections: {
+                    every: {
+                        quizCollectionId: room.quizCollectionId
+                    }
+                } });
+            socket.to(roomCode).emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizzes);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             console.info(`User: ${user.userName} joined room ${roomCode}`);
         });
@@ -174,6 +177,8 @@ __decorate([
 exports.QuizzesSocketController = QuizzesSocketController = __decorate([
     (0, socket_controllers_1.SocketController)(QuizzesSocketController.namespace),
     (0, typedi_1.Service)(),
-    __metadata("design:paramtypes", [rooms_service_1.RoomsService, quizCollections_service_1.QuizCollectionsService])
+    __metadata("design:paramtypes", [rooms_service_1.RoomsService,
+        quizCollections_service_1.QuizCollectionsService,
+        quizzes_service_1.QuizzesService])
 ], QuizzesSocketController);
 //# sourceMappingURL=quizzes.socket.controller.js.map

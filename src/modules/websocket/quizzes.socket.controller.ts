@@ -16,6 +16,7 @@ import { Socket } from "socket.io";
 import { QuizzesEvents } from "../../libs/events/quizzes.events";
 import { QuizCollectionsService } from "../../libs/services/quizCollections.service";
 import { QuizzesService } from "../../libs/services/quizzes.service";
+import { User } from "../../models/user";
 
 @SocketController(QuizzesSocketController.namespace)
 @Service()
@@ -30,7 +31,7 @@ export class QuizzesSocketController {
 
   @OnConnect()
   async connection(@ConnectedSocket() socket: Socket) {
-    const user = socket["user"] as Account;
+    const user = socket["user"] as User;
 
     console.info("Quizzes namespace is working...");
     socket.emit(SocketsEvents.STARTED, "Quizzes namespace is working...");
@@ -80,7 +81,7 @@ export class QuizzesSocketController {
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomCode }: { roomCode: string }
   ) {
-    const user = socket["user"] as Account;
+    const user = socket["user"] as User;
 
     const room = await this.roomsService.getByCode(roomCode);
 
@@ -101,7 +102,7 @@ export class QuizzesSocketController {
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomCode }: { roomCode: string }
   ) {
-    const user = socket["user"] as Account;
+    const user = socket["user"] as User;
 
     const room = await this.roomsService.getByCode(roomCode);
 
@@ -123,7 +124,7 @@ export class QuizzesSocketController {
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomCode }: { roomCode: string }
   ) {
-    const user = socket["user"] as Account;
+    const user = socket["user"] as User;
 
     var room = await this.roomsService.getByCode(roomCode);
 
@@ -140,7 +141,7 @@ export class QuizzesSocketController {
     @ConnectedSocket() socket: Socket,
     @MessageBody() { roomCode }: { roomCode: string }
   ) {
-    const user = socket["user"] as Account;
+    const user = socket["user"] as User;
 
     const room = await this.roomsService.getByCode(roomCode);
 

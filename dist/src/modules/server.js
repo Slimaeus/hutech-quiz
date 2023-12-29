@@ -21,6 +21,7 @@ const webSocket_1 = __importDefault(require("./websocket/webSocket"));
 const account_1 = require("../models/account");
 const typedi_1 = __importDefault(require("typedi"));
 const socket_controllers_1 = require("socket-controllers");
+const client_1 = require("@prisma/client");
 const port = process.env.APP_PORT || 3000;
 const routingControllerOptions = {
     routePrefix: "",
@@ -71,7 +72,7 @@ const routingControllerOptions = {
             // Verify the token using the same key and algorithm used in your ASP.NET Core app
             const decoded = jsonwebtoken_1.default.verify(token, process.env.TOKEN_KEY, {
                 algorithms: ["HS256"],
-                ignoreExpiration: true
+                ignoreExpiration: true,
             });
             // ! Ignore Expiration is on
             // Check if the decoded token has the necessary roles
@@ -94,6 +95,7 @@ httpServer.listen(port, () => {
 });
 const io = webSocket_1.default.getInstance(httpServer);
 typedi_1.default.set(webSocket_1.default, io);
+typedi_1.default.set(client_1.PrismaClient, new client_1.PrismaClient());
 new socket_controllers_1.SocketControllers({
     io,
     container: typedi_1.default,
