@@ -26,7 +26,11 @@ let QuizCollectionsController = class QuizCollectionsController {
         return this.quizCollectionsService.getMany();
     }
     getQuizCollection(quizCollectionId) {
-        return this.quizCollectionsService.get(quizCollectionId);
+        return this.quizCollectionsService.get(quizCollectionId, {}, { quizzes: {
+                include: {
+                    quiz: true
+                }
+            } });
     }
     insertQuizCollection(quizFormValues) {
         return this.quizCollectionsService.create(quizFormValues);

@@ -31,11 +31,10 @@ let QuizCollectionsService = class QuizCollectionsService {
             include: include,
         });
     }
-    get(id) {
+    get(id, filter, include) {
         return this.prisma.quizCollection.findFirst({
-            where: {
-                id: id,
-            },
+            where: Object.assign({ id: id }, filter),
+            include: include
         });
     }
     getQuizzes(id) {
