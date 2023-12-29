@@ -5,16 +5,19 @@ import { DefaultArgs } from "@prisma/client/runtime/library";
 
 @Service()
 export class QuizCollectionsService {
-  prisma: PrismaClient = new PrismaClient();
+  constructor(private readonly prisma: PrismaClient) {}
 
-  getMany(filter?: Prisma.QuizCollectionWhereInput, include?: Prisma.QuizCollectionInclude<DefaultArgs>) : Promise<QuizCollection[]> {
+  getMany(
+    filter?: Prisma.QuizCollectionWhereInput,
+    include?: Prisma.QuizCollectionInclude<DefaultArgs>
+  ): Promise<QuizCollection[]> {
     return this.prisma.quizCollection.findMany({
       where: filter,
-      include: include
+      include: include,
     });
   }
 
-  get(id: string) : Promise<QuizCollection> {
+  get(id: string): Promise<QuizCollection> {
     return this.prisma.quizCollection.findFirst({
       where: {
         id: id,
@@ -22,26 +25,26 @@ export class QuizCollectionsService {
     });
   }
 
-  async getQuizzes(id: string) : Promise<QuizCollection> {
+  async getQuizzes(id: string): Promise<QuizCollection> {
     const quizCollection = await this.prisma.quizCollection.findFirst({
       where: {
         id: id,
       },
       include: {
-        quizzes: true
-      }
+        quizzes: true,
+      },
     });
 
     return quizCollection;
   }
 
-  create(data: QuizCollectionFormValues) : Promise<QuizCollection> {
+  create(data: QuizCollectionFormValues): Promise<QuizCollection> {
     return this.prisma.quizCollection.create({
       data: data,
     });
   }
 
-  async update(id: string, data: QuizCollectionFormValues) : Promise<void> {
+  async update(id: string, data: QuizCollectionFormValues): Promise<void> {
     await this.prisma.quizCollection.update({
       where: {
         id: id,
@@ -50,7 +53,7 @@ export class QuizCollectionsService {
     });
   }
 
-  delete(id: string) : Promise<QuizCollection> {
+  delete(id: string): Promise<QuizCollection> {
     return this.prisma.quizCollection.delete({
       where: {
         id: id,

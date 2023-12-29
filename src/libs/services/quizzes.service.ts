@@ -5,7 +5,7 @@ import { DefaultArgs } from "@prisma/client/runtime/library";
 
 @Service()
 export class QuizzesService {
-  prisma: PrismaClient = new PrismaClient();
+  constructor(private readonly prisma: PrismaClient) {}
 
   getMany(filter?: Prisma.QuizWhereInput, include?: Prisma.QuizInclude<DefaultArgs>) : Promise<Quiz[]> {
     return this.prisma.quiz.findMany({

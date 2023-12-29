@@ -30,7 +30,6 @@ export class QuizzesSocketController {
 
   @OnConnect()
   async connection(@ConnectedSocket() socket: Socket) {
-    const roomsService: RoomsService = new RoomsService();
     const user = socket["user"] as Account;
 
     console.info("Quizzes namespace is working...");
@@ -48,14 +47,14 @@ export class QuizzesSocketController {
     }
     roomCode = roomCodeParam as string;
 
-    const room = await roomsService.getByCode(roomCode);
+    const room = await this.roomsService.getByCode(roomCode);
 
     if (!room) return;
 
     const roomFormValues = RoomFormValues.toFormValues(room);
     if (!roomFormValues.userIds.includes(user.id))
       roomFormValues.userIds.push(user.id);
-    await roomsService.update(room.id, roomFormValues);
+    await this.roomsService.update(room.id, roomFormValues);
 
     socket.join(roomCode);
 

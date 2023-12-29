@@ -13,6 +13,7 @@ import Websocket from "./websocket/webSocket";
 import { Account } from "../models/account";
 import Container from "typedi";
 import { SocketControllers } from "socket-controllers";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const port = process.env.APP_PORT || 3000;
 
@@ -72,7 +73,7 @@ const routingControllerOptions: RoutingControllersOptions = {
       // Verify the token using the same key and algorithm used in your ASP.NET Core app
       const decoded = jwt.verify(token, process.env.TOKEN_KEY, {
         algorithms: ["HS256"],
-        ignoreExpiration: true
+        ignoreExpiration: true,
       });
 
       // ! Ignore Expiration is on
@@ -102,6 +103,7 @@ httpServer.listen(port, () => {
 
 const io = Websocket.getInstance(httpServer);
 Container.set(Websocket, io);
+Container.set(PrismaClient, new PrismaClient());
 
 new SocketControllers({
   io,
