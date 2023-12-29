@@ -34,7 +34,11 @@ class QuizCollectionsController {
   @HttpCode(200)
   @Get("/:quizCollectionId")
   getQuizCollection(@Param("quizCollectionId") quizCollectionId: string) {
-    return this.quizCollectionsService.get(quizCollectionId);
+    return this.quizCollectionsService.get(quizCollectionId, {}, { quizzes: {
+      include: {
+        quiz: true
+      }
+    }});
   }
 
   @HttpCode(201)

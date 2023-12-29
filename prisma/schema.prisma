@@ -23,7 +23,7 @@ model Quiz {
   id           String                 @id @default(auto()) @map("_id") @db.ObjectId
   content      String
   explaination String
-  score        Int
+  score        Float
   answers      Answer[]
   records      Record[]
   collections  QuizToQuizCollection[]
@@ -33,7 +33,7 @@ model QuizCollection {
   id      String                 @id @default(auto()) @map("_id") @db.ObjectId
   name    String
   quizzes QuizToQuizCollection[]
-  Room    Room[]
+  room    Room[]
 }
 
 model QuizToQuizCollection {

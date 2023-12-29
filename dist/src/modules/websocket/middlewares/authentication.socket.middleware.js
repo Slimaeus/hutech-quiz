@@ -21,10 +21,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthenticationMiddleware = void 0;
 const socket_controllers_1 = require("socket-controllers");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const account_1 = require("../../../models/account");
 const typedi_1 = require("typedi");
 const quizzes_socket_controller_1 = require("../quizzes.socket.controller");
 const axios_1 = __importDefault(require("axios"));
+const routing_controllers_1 = require("routing-controllers");
 let AuthenticationMiddleware = class AuthenticationMiddleware {
     use(socket, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -48,13 +48,14 @@ let AuthenticationMiddleware = class AuthenticationMiddleware {
                     },
                 });
                 if (response.status < 400) {
-                    console.log(response.data);
+                    socket["user"] = response.data;
                 }
                 else {
                     console.error("Get data failed", response.status, response.data);
+                    throw new routing_controllers_1.UnauthorizedError();
                 }
                 // ! Ignore Expiration is on
-                socket["user"] = account_1.Account.fromJson(decoded);
+                // socket["user"] = Account.fromJson(decoded as jwt.JwtPayload);
                 return next();
             }
             catch (error) {

@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Quiz, QuizCollection } from "@prisma/client";
+import { Prisma, PrismaClient, Quiz, QuizCollection, QuizToQuizCollection } from "@prisma/client";
 import { QuizCollectionFormValues } from "../../models/quizCollection";
 import { Service } from "typedi";
 import { DefaultArgs } from "@prisma/client/runtime/library";
@@ -17,11 +17,14 @@ export class QuizCollectionsService {
     });
   }
 
-  get(id: string): Promise<QuizCollection> {
+  get(id: string, filter?: Prisma.QuizCollectionWhereInput,
+    include?: Prisma.QuizCollectionInclude<DefaultArgs>): Promise<QuizCollection> {
     return this.prisma.quizCollection.findFirst({
       where: {
         id: id,
+        ...filter
       },
+      include: include
     });
   }
 
