@@ -16,18 +16,10 @@ const isTest = env == "development";
 export class AuthenticationMiddleware implements MiddlewareInterface {
   async use(socket: Socket, next: NextFunction) {
     try {
-      const token = socket.handshake.query["access_token"];
-      let tokenStr = "";
+      const token = socket.handshake.query["access_token"] as string;
       if (!token) return next();
-      if (
-        Array.isArray(token) &&
-        token.every((item) => typeof item === "string")
-      ) {
-        tokenStr = token.join("");
-      } else {
-        tokenStr = token as string;
-      }
-      const decoded = jwt.verify(tokenStr, process.env.TOKEN_KEY, {
+      
+      const decoded = jwt.verify(token, process.env.TOKEN_KEY, {
         algorithms: ["HS256"],
         ignoreExpiration: isTest,
       });
@@ -36,7 +28,7 @@ export class AuthenticationMiddleware implements MiddlewareInterface {
         `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/@me`,
         {
           headers: {
-            Authorization: `Bearer ${tokenStr}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );

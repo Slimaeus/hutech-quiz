@@ -37,16 +37,9 @@ export class QuizzesSocketController {
     socket.emit(SocketsEvents.STARTED, "Quizzes namespace is working...");
     socket.emit("load_user", user);
 
-    const roomCodeParam = socket.handshake.query["roomCode"];
-    let roomCode = "";
-    if (!roomCodeParam) return;
-    if (
-      Array.isArray(roomCodeParam) &&
-      roomCodeParam.every((item) => typeof item === "string")
-    ) {
-      roomCode = roomCodeParam.join("");
-    }
-    roomCode = roomCodeParam as string;
+    const roomCode = socket.handshake.query.roomCode as string;
+
+    if (!roomCode) return socket.disconnect();
 
     const room = await this.roomsService.getByCode(roomCode);
 
