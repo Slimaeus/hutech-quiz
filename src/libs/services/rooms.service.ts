@@ -13,7 +13,11 @@ export class RoomsService {
   ): Promise<Room[]> {
     return this.prisma.room.findMany({
       where: filter,
-      include: include,
+      include: {
+        quizCollection: true,
+        currentQuiz: true,
+        ...include,
+      },
     });
   }
 
@@ -23,15 +27,20 @@ export class RoomsService {
         id: id,
       },
       include: {
+        currentQuiz: true,
         quizCollection: true,
       },
     });
   }
 
-  getByCode(code: string): Promise<Room> {
+  getByCode(code: string): Promise<Prisma.RoomGetPayload<{ include: {currentQuiz: true, quizCollection: true } }>> {
     return this.prisma.room.findFirst({
       where: {
         code: code,
+      },
+      include: {
+        currentQuiz: true,
+        quizCollection: true,
       },
     });
   }
@@ -131,7 +140,7 @@ export class RoomsService {
       data: {
         isStarted: false,
         startedAt: null,
-        currentQuizId: null
+        currentQuizId: null,
       },
     });
   }
@@ -144,7 +153,7 @@ export class RoomsService {
       data: {
         isStarted: false,
         startedAt: null,
-        currentQuizId: null
+        currentQuizId: null,
       },
     });
   }

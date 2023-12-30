@@ -125,7 +125,7 @@ export class QuizzesSocketController {
 
     await this.roomsService.start(room.id);
 
-    socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room.id);
+    socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room.code);
     console.info(`User (${user.userName}) start room ${roomCode}`);
   }
 
@@ -142,7 +142,7 @@ export class QuizzesSocketController {
 
     await this.roomsService.end(room.id);
 
-    socket.to(roomCode).emit(RoomsEvents.ENDED_ROOM, room.id);
+    socket.to(roomCode).emit(RoomsEvents.ENDED_ROOM, room.code);
     console.info(`User (${user.userName}) start room ${roomCode}`);
   }
 }
