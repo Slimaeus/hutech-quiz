@@ -25,8 +25,8 @@ const typedi_1 = require("typedi");
 const quizzes_socket_controller_1 = require("../quizzes.socket.controller");
 const axios_1 = __importDefault(require("axios"));
 const routing_controllers_1 = require("routing-controllers");
-const env = process.env.NODE_ENV || 'development';
-const isTest = env == 'development';
+const env = process.env.NODE_ENV || "development";
+const isTest = env == "development";
 let AuthenticationMiddleware = class AuthenticationMiddleware {
     use(socket, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,7 +39,9 @@ let AuthenticationMiddleware = class AuthenticationMiddleware {
                     token.every((item) => typeof item === "string")) {
                     tokenStr = token.join("");
                 }
-                tokenStr = token;
+                else {
+                    tokenStr = token;
+                }
                 const decoded = jsonwebtoken_1.default.verify(tokenStr, process.env.TOKEN_KEY, {
                     algorithms: ["HS256"],
                     ignoreExpiration: isTest,
@@ -53,7 +55,7 @@ let AuthenticationMiddleware = class AuthenticationMiddleware {
                     socket["user"] = response.data;
                 }
                 else {
-                    console.error("Get data failed", response.status, response.data);
+                    console.error("Get data failed", response.status);
                     throw new routing_controllers_1.UnauthorizedError();
                 }
                 // ! Ignore Expiration is on

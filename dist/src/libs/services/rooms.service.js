@@ -72,27 +72,27 @@ let RoomsService = class RoomsService {
     }
     start(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Fetch the first quiz from the quiz collection
-            const firstQuiz = yield this.prisma.quizToQuizCollection.findFirst({
-                where: {
-                    quizCollection: {
-                        room: {
-                            every: {
-                                id: id
-                            }
-                        }
-                    },
-                },
-                orderBy: {
-                    id: "asc",
-                },
-            });
+            const room = yield this.get(id);
+            if (!room)
+                return;
             const dataToUpdate = {
                 isStarted: true,
                 startedAt: new Date(),
             };
-            if (firstQuiz) {
-                dataToUpdate.currentQuizId = firstQuiz.quizId;
+            if (room.quizCollectionId) {
+                const firstQuiz = yield this.prisma.quizToQuizCollection.findFirst({
+                    where: {
+                        quizCollectionId: room.quizCollectionId,
+                    },
+                    orderBy: {
+                        id: "asc",
+                    },
+                });
+                console.info("First Quiz");
+                console.info(firstQuiz);
+                if (firstQuiz) {
+                    dataToUpdate.currentQuizId = firstQuiz.quizId;
+                }
             }
             // Start the room and set the current quiz
             yield this.prisma.room.update({
@@ -105,14 +105,34 @@ let RoomsService = class RoomsService {
     }
     startByCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.getByCode(code);
+            if (!room)
+                return;
+            const dataToUpdate = {
+                isStarted: true,
+                startedAt: new Date(),
+            };
+            if (room.quizCollectionId) {
+                const firstQuiz = yield this.prisma.quizToQuizCollection.findFirst({
+                    where: {
+                        quizCollectionId: room.quizCollectionId,
+                    },
+                    orderBy: {
+                        id: "asc",
+                    },
+                });
+                console.info("First Quiz");
+                console.info(firstQuiz);
+                if (firstQuiz) {
+                    dataToUpdate.currentQuizId = firstQuiz.quizId;
+                }
+            }
+            // Start the room and set the current quiz
             yield this.prisma.room.update({
                 where: {
                     code: code,
                 },
-                data: {
-                    isStarted: true,
-                    startedAt: new Date(),
-                },
+                data: dataToUpdate,
             });
         });
     }

@@ -60,29 +60,27 @@ export class RoomsService {
   }
 
   async start(id: string) {
-    // Fetch the first quiz from the quiz collection
-    const firstQuiz = await this.prisma.quizToQuizCollection.findFirst({
-      where: {
-        quizCollection: {
-          room: {
-            every: {
-              id: id
-            }
-          }
-        },
-      },
-      orderBy: {
-        id: "asc",
-      },
-    });
+    const room = await this.get(id);
+    if (!room) return;
 
     const dataToUpdate: Prisma.RoomUncheckedUpdateInput = {
       isStarted: true,
       startedAt: new Date(),
     };
 
-    if (firstQuiz) {
-      dataToUpdate.currentQuizId = firstQuiz.quizId;
+    if (room.quizCollectionId) {
+      const firstQuiz = await this.prisma.quizToQuizCollection.findFirst({
+        where: {
+          quizCollectionId: room.quizCollectionId,
+        },
+        orderBy: {
+          id: "asc",
+        },
+      });
+
+      if (firstQuiz) {
+        dataToUpdate.currentQuizId = firstQuiz.quizId;
+      }
     }
 
     // Start the room and set the current quiz
@@ -95,14 +93,33 @@ export class RoomsService {
   }
 
   async startByCode(code: string) {
+    const room = await this.getByCode(code);
+    if (!room) return;
+    const dataToUpdate: Prisma.RoomUncheckedUpdateInput = {
+      isStarted: true,
+      startedAt: new Date(),
+    };
+    if (room.quizCollectionId) {
+      const firstQuiz = await this.prisma.quizToQuizCollection.findFirst({
+        where: {
+          quizCollectionId: room.quizCollectionId,
+        },
+        orderBy: {
+          id: "asc",
+        },
+      });
+
+      if (firstQuiz) {
+        dataToUpdate.currentQuizId = firstQuiz.quizId;
+      }
+    }
+
+    // Start the room and set the current quiz
     await this.prisma.room.update({
       where: {
         code: code,
       },
-      data: {
-        isStarted: true,
-        startedAt: new Date(),
-      },
+      data: dataToUpdate,
     });
   }
 
@@ -113,6 +130,8 @@ export class RoomsService {
       },
       data: {
         isStarted: false,
+        startedAt: null,
+        currentQuizId: null
       },
     });
   }
@@ -124,6 +143,8 @@ export class RoomsService {
       },
       data: {
         isStarted: false,
+        startedAt: null,
+        currentQuizId: null
       },
     });
   }

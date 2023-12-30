@@ -68,11 +68,11 @@ let QuizzesSocketController = class QuizzesSocketController {
                 } });
             socket.to(roomCode).emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizzes);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
-            console.info(`User: ${user.userName} joined room ${roomCode}`);
+            console.info(`User (${user.userName}) joined room ${roomCode}`);
         });
     }
     disconnect(socket) {
-        console.info("client disconnected");
+        console.info(`User (${socket["user"].userName}) disconnected`);
     }
     joinRoom(socket, { roomCode }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -86,7 +86,7 @@ let QuizzesSocketController = class QuizzesSocketController {
             yield this.roomsService.update(room.id, roomFormValues);
             socket.join(roomCode);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
-            console.info(`User: ${user.userName} joined room ${roomCode}`);
+            console.info(`User (${user.userName}) joined room ${roomCode}`);
         });
     }
     leaveRoom(socket, { roomCode }) {
@@ -100,7 +100,7 @@ let QuizzesSocketController = class QuizzesSocketController {
             yield this.roomsService.update(room.id, roomFormValues);
             socket.leave(roomCode);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.LEFT_ROOM, user);
-            console.info(`User: ${user.userName} left room ${roomCode}`);
+            console.info(`User (${user.userName}) left room ${roomCode}`);
         });
     }
     startRoom(socket, { roomCode }) {
@@ -111,7 +111,7 @@ let QuizzesSocketController = class QuizzesSocketController {
                 return;
             yield this.roomsService.start(room.id);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, room.id);
-            console.info(`User: ${user.userName} start room ${roomCode}`);
+            console.info(`User (${user.userName}) start room ${roomCode}`);
         });
     }
     endRoom(socket, { roomCode }) {
@@ -122,7 +122,7 @@ let QuizzesSocketController = class QuizzesSocketController {
                 return;
             yield this.roomsService.end(room.id);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.ENDED_ROOM, room.id);
-            console.info(`User: ${user.userName} start room ${roomCode}`);
+            console.info(`User (${user.userName}) start room ${roomCode}`);
         });
     }
 };
