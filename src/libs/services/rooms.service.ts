@@ -60,14 +60,37 @@ export class RoomsService {
   }
 
   async start(id: string) {
+    // Fetch the first quiz from the quiz collection
+    const firstQuiz = await this.prisma.quizToQuizCollection.findFirst({
+      where: {
+        quizCollection: {
+          room: {
+            every: {
+              id: id
+            }
+          }
+        },
+      },
+      orderBy: {
+        id: "asc",
+      },
+    });
+
+    const dataToUpdate: Prisma.RoomUncheckedUpdateInput = {
+      isStarted: true,
+      startedAt: new Date(),
+    };
+
+    if (firstQuiz) {
+      dataToUpdate.currentQuizId = firstQuiz.quizId;
+    }
+
+    // Start the room and set the current quiz
     await this.prisma.room.update({
       where: {
         id: id,
       },
-      data: {
-        isStarted: true,
-        startedAt: new Date(),
-      },
+      data: dataToUpdate,
     });
   }
 

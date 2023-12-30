@@ -1,6 +1,5 @@
 import { Middleware, MiddlewareInterface } from "socket-controllers";
 import jwt from "jsonwebtoken";
-import { Account } from "../../../models/account";
 import { Service } from "typedi";
 import { QuizzesSocketController } from "../quizzes.socket.controller";
 import { Socket } from "socket.io";
@@ -8,6 +7,9 @@ import { NextFunction } from "express";
 import axios from "axios";
 import { User } from "../../../models/user";
 import { UnauthorizedError } from "routing-controllers";
+
+const env = process.env.NODE_ENV || "development";
+const isTest = env == "development";
 
 @Middleware({ namespace: QuizzesSocketController.namespace })
 @Service()
@@ -22,11 +24,12 @@ export class AuthenticationMiddleware implements MiddlewareInterface {
         token.every((item) => typeof item === "string")
       ) {
         tokenStr = token.join("");
+      } else {
+        tokenStr = token as string;
       }
-      tokenStr = token as string;
       const decoded = jwt.verify(tokenStr, process.env.TOKEN_KEY, {
         algorithms: ["HS256"],
-        ignoreExpiration: true,
+        ignoreExpiration: isTest,
       });
 
       const response = await axios.get<User>(
@@ -41,7 +44,7 @@ export class AuthenticationMiddleware implements MiddlewareInterface {
       if (response.status < 400) {
         socket["user"] = response.data;
       } else {
-        console.error("Get data failed", response.status, response.data);
+        console.error("Get data failed", response.status);
         throw new UnauthorizedError();
       }
 

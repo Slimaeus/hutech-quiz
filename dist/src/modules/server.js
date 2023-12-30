@@ -23,6 +23,8 @@ const typedi_1 = __importDefault(require("typedi"));
 const socket_controllers_1 = require("socket-controllers");
 const client_1 = require("@prisma/client");
 const port = process.env.APP_PORT || 3000;
+const env = process.env.NODE_ENV || 'development';
+const isTest = env === 'development';
 const routingControllerOptions = {
     routePrefix: "",
     controllers: [`${__dirname}/http/*.controller.*`],
@@ -58,7 +60,6 @@ const routingControllerOptions = {
     authorizationChecker: (action, roles) => __awaiter(void 0, void 0, void 0, function* () {
         const authorizationHeader = action.request.headers["authorization"];
         const scheme = "bearer";
-        const isTest = true;
         if (isTest)
             return isTest;
         if (!authorizationHeader ||
@@ -72,7 +73,7 @@ const routingControllerOptions = {
             // Verify the token using the same key and algorithm used in your ASP.NET Core app
             const decoded = jsonwebtoken_1.default.verify(token, process.env.TOKEN_KEY, {
                 algorithms: ["HS256"],
-                ignoreExpiration: true,
+                ignoreExpiration: isTest,
             });
             // ! Ignore Expiration is on
             // Check if the decoded token has the necessary roles

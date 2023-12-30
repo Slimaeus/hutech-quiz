@@ -25,6 +25,8 @@ const typedi_1 = require("typedi");
 const quizzes_socket_controller_1 = require("../quizzes.socket.controller");
 const axios_1 = __importDefault(require("axios"));
 const routing_controllers_1 = require("routing-controllers");
+const env = process.env.NODE_ENV || 'development';
+const isTest = env == 'development';
 let AuthenticationMiddleware = class AuthenticationMiddleware {
     use(socket, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -40,7 +42,7 @@ let AuthenticationMiddleware = class AuthenticationMiddleware {
                 tokenStr = token;
                 const decoded = jsonwebtoken_1.default.verify(tokenStr, process.env.TOKEN_KEY, {
                     algorithms: ["HS256"],
-                    ignoreExpiration: true,
+                    ignoreExpiration: isTest,
                 });
                 const response = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/@me`, {
                     headers: {

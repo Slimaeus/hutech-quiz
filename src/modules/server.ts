@@ -13,9 +13,11 @@ import Websocket from "./websocket/webSocket";
 import { Account } from "../models/account";
 import Container from "typedi";
 import { SocketControllers } from "socket-controllers";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const port = process.env.APP_PORT || 3000;
+const env = process.env.NODE_ENV || 'development';
+const isTest = env === 'development';
 
 const routingControllerOptions: RoutingControllersOptions = {
   routePrefix: "",
@@ -56,7 +58,6 @@ const routingControllerOptions: RoutingControllersOptions = {
   authorizationChecker: async (action: Action, roles: string[]) => {
     const authorizationHeader: string = action.request.headers["authorization"];
     const scheme = "bearer";
-    const isTest = true;
     if (isTest) return isTest;
     if (
       !authorizationHeader ||
@@ -73,7 +74,7 @@ const routingControllerOptions: RoutingControllersOptions = {
       // Verify the token using the same key and algorithm used in your ASP.NET Core app
       const decoded = jwt.verify(token, process.env.TOKEN_KEY, {
         algorithms: ["HS256"],
-        ignoreExpiration: true,
+        ignoreExpiration: isTest,
       });
 
       // ! Ignore Expiration is on

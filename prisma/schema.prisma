@@ -26,6 +26,7 @@ model Quiz {
   score        Float
   answers      Answer[]
   records      Record[]
+  rooms        Room[]
   collections  QuizToQuizCollection[]
 }
 
@@ -53,6 +54,8 @@ model Room {
   startedAt        DateTime?
   ownerId          String?
   userIds          String[]
+  currentQuizId    String?         @db.ObjectId
+  currentQuiz      Quiz?           @relation(fields: [currentQuizId], references: [id])
   quizCollectionId String?         @db.ObjectId
   quizCollection   QuizCollection? @relation(fields: [quizCollectionId], references: [id])
   records          Record[]

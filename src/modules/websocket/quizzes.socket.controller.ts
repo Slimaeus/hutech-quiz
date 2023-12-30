@@ -68,12 +68,12 @@ export class QuizzesSocketController {
     socket.to(roomCode).emit(QuizzesEvents.LOADED_QUIZZES, quizzes);
 
     socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
-    console.info(`User: ${user.userName} joined room ${roomCode}`);
+    console.info(`User (${user.userName}) joined room ${roomCode}`);
   }
 
   @OnDisconnect()
   disconnect(@ConnectedSocket() socket: Socket) {
-    console.info("client disconnected");
+    console.info(`User (${socket["user"].userName}) disconnected`);
   }
 
   @OnMessage(RoomsEvents.JOIN_ROOM)
@@ -94,7 +94,7 @@ export class QuizzesSocketController {
 
     socket.join(roomCode);
     socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
-    console.info(`User: ${user.userName} joined room ${roomCode}`);
+    console.info(`User (${user.userName}) joined room ${roomCode}`);
   }
 
   @OnMessage(RoomsEvents.LEAVE_ROOM)
@@ -116,7 +116,7 @@ export class QuizzesSocketController {
 
     socket.leave(roomCode);
     socket.to(roomCode).emit(RoomsEvents.LEFT_ROOM, user);
-    console.info(`User: ${user.userName} left room ${roomCode}`);
+    console.info(`User (${user.userName}) left room ${roomCode}`);
   }
 
   @OnMessage(RoomsEvents.START_ROOM)
@@ -133,7 +133,7 @@ export class QuizzesSocketController {
     await this.roomsService.start(room.id);
 
     socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room.id);
-    console.info(`User: ${user.userName} start room ${roomCode}`);
+    console.info(`User (${user.userName}) start room ${roomCode}`);
   }
 
   @OnMessage(RoomsEvents.END_ROOM)
@@ -150,6 +150,6 @@ export class QuizzesSocketController {
     await this.roomsService.end(room.id);
 
     socket.to(roomCode).emit(RoomsEvents.ENDED_ROOM, room.id);
-    console.info(`User: ${user.userName} start room ${roomCode}`);
+    console.info(`User (${user.userName}) start room ${roomCode}`);
   }
 }

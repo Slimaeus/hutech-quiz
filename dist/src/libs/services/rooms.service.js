@@ -72,14 +72,34 @@ let RoomsService = class RoomsService {
     }
     start(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Fetch the first quiz from the quiz collection
+            const firstQuiz = yield this.prisma.quizToQuizCollection.findFirst({
+                where: {
+                    quizCollection: {
+                        room: {
+                            every: {
+                                id: id
+                            }
+                        }
+                    },
+                },
+                orderBy: {
+                    id: "asc",
+                },
+            });
+            const dataToUpdate = {
+                isStarted: true,
+                startedAt: new Date(),
+            };
+            if (firstQuiz) {
+                dataToUpdate.currentQuizId = firstQuiz.quizId;
+            }
+            // Start the room and set the current quiz
             yield this.prisma.room.update({
                 where: {
                     id: id,
                 },
-                data: {
-                    isStarted: true,
-                    startedAt: new Date(),
-                },
+                data: dataToUpdate,
             });
         });
     }
