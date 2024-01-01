@@ -11,6 +11,7 @@ import {
   OnUndefined,
   Patch,
   CurrentUser,
+  HeaderParam,
 } from "routing-controllers";
 import { RoomFormValues } from "../../models/room";
 import { PrismaClient } from "@prisma/client";
@@ -41,13 +42,19 @@ class RoomsController {
 
   @HttpCode(200)
   @Get("/:roomId")
-  getRoom(@Param("roomId") roomId: string) {
+  getRoom(
+    @Param("roomId") roomId: string,
+    @HeaderParam("authorization") token: string
+  ) {
+    if (token) return this.roomsService.get(roomId, token.split(" ")[1]);
     return this.roomsService.get(roomId);
   }
 
   @HttpCode(200)
   @Get("/code/:code")
-  getRoomByCode(@Param("code") code: string) {
+  getRoomByCode(@Param("code") code: string,
+  @HeaderParam("authorization") token: string) {
+    if (token) return this.roomsService.getByCode(code, token.split(" ")[1]);
     return this.roomsService.getByCode(code);
   }
 

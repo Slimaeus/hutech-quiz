@@ -2,6 +2,9 @@ import { Prisma, PrismaClient, Room } from "@prisma/client";
 import { RoomFormValues } from "../../models/room";
 import { Service } from "typedi";
 import { DefaultArgs } from "@prisma/client/runtime/library";
+import axios from "axios";
+import { User } from "../../models/user";
+import { UnauthorizedError } from "routing-controllers";
 
 @Service()
 export class RoomsService {
@@ -21,8 +24,8 @@ export class RoomsService {
     });
   }
 
-  get(id: string): Promise<Room> {
-    return this.prisma.room.findFirst({
+  async get(id: string, token?: string): Promise<Room> {
+    const room = await this.prisma.room.findFirst({
       where: {
         id: id,
       },
@@ -31,26 +34,57 @@ export class RoomsService {
         quizCollection: true,
       },
     });
+
+    return room;
   }
 
-  getByCode(code: string): Promise<Prisma.RoomGetPayload<{ include: {currentQuiz: {
-    include: {
-      answers: true
-    }
-  }, quizCollection: true } }>> {
-    return this.prisma.room.findFirst({
+  async getByCode(
+    code: string,
+    token?: string
+  ): Promise<
+    Prisma.RoomGetPayload<{
+      include: {
+        currentQuiz: {
+          include: {
+            answers: true;
+          };
+        };
+        quizCollection: true;
+      };
+    }>
+  > {
+    const room = await this.prisma.room.findFirst({
       where: {
         code: code,
       },
       include: {
         currentQuiz: {
           include: {
-            answers: true
-          }
+            answers: true,
+          },
         },
         quizCollection: true,
       },
     });
+
+    if (room.ownerId && token) {
+      const response = await axios.get<User>(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status < 400) {
+        room["owner"] = response.data;
+      } else {
+        console.error("Get data failed", response.status);
+        throw new UnauthorizedError();
+      }
+    }
+    return room;
   }
 
   create(data: RoomFormValues) {

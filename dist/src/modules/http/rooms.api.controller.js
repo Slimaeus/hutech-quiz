@@ -43,7 +43,9 @@ let RoomsController = class RoomsController {
     getRooms() {
         return this.roomsService.getMany();
     }
-    getRoom(roomId) {
+    getRoom(roomId, token) {
+        if (token)
+            return this.roomsService.get(roomId, token.split(" ")[0]);
         return this.roomsService.get(roomId);
     }
     getRoomByCode(code) {
@@ -118,8 +120,9 @@ __decorate([
     (0, routing_controllers_1.HttpCode)(200),
     (0, routing_controllers_1.Get)("/:roomId"),
     __param(0, (0, routing_controllers_1.Param)("roomId")),
+    __param(1, (0, routing_controllers_1.HeaderParam)("authorization")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "getRoom", null);
 __decorate([

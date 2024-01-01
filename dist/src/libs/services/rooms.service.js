@@ -17,10 +17,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoomsService = void 0;
 const client_1 = require("@prisma/client");
 const typedi_1 = require("typedi");
+const axios_1 = __importDefault(require("axios"));
+const routing_controllers_1 = require("routing-controllers");
 let RoomsService = class RoomsService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -31,15 +36,32 @@ let RoomsService = class RoomsService {
             include: Object.assign({ quizCollection: true, currentQuiz: true }, include),
         });
     }
-    get(id) {
-        return this.prisma.room.findFirst({
-            where: {
-                id: id,
-            },
-            include: {
-                currentQuiz: true,
-                quizCollection: true,
-            },
+    get(id, token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.prisma.room.findFirst({
+                where: {
+                    id: id,
+                },
+                include: {
+                    currentQuiz: true,
+                    quizCollection: true,
+                },
+            });
+            if (room.ownerId && token) {
+                const response = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.status < 400) {
+                    room["owner"] = response.data;
+                }
+                else {
+                    console.error("Get data failed", response.status);
+                    throw new routing_controllers_1.UnauthorizedError();
+                }
+            }
+            return room;
         });
     }
     getByCode(code) {
