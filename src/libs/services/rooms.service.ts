@@ -33,13 +33,21 @@ export class RoomsService {
     });
   }
 
-  getByCode(code: string): Promise<Prisma.RoomGetPayload<{ include: {currentQuiz: true, quizCollection: true } }>> {
+  getByCode(code: string): Promise<Prisma.RoomGetPayload<{ include: {currentQuiz: {
+    include: {
+      answers: true
+    }
+  }, quizCollection: true } }>> {
     return this.prisma.room.findFirst({
       where: {
         code: code,
       },
       include: {
-        currentQuiz: true,
+        currentQuiz: {
+          include: {
+            answers: true
+          }
+        },
         quizCollection: true,
       },
     });
