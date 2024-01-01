@@ -35,6 +35,40 @@ export class RoomsService {
       },
     });
 
+    if (room.ownerId && token) {
+      const ownerResponse = await axios.get<User>(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (ownerResponse.status < 400) {
+        room["owner"] = ownerResponse.data;
+      } else {
+        console.error("Get data failed", ownerResponse.status);
+        // throw new UnauthorizedError();
+      }
+
+      const usersResponse = await axios.get<User>(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (usersResponse.status < 400) {
+        room["users"] = usersResponse.data;
+      } else {
+        console.error("Get data failed", usersResponse.status);
+        // throw new UnauthorizedError();
+      }
+    }
+
     return room;
   }
 
@@ -68,7 +102,7 @@ export class RoomsService {
     });
 
     if (room.ownerId && token) {
-      const response = await axios.get<User>(
+      const ownerResponse = await axios.get<User>(
         `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`,
         {
           headers: {
@@ -77,11 +111,27 @@ export class RoomsService {
         }
       );
 
-      if (response.status < 400) {
-        room["owner"] = response.data;
+      if (ownerResponse.status < 400) {
+        room["owner"] = ownerResponse.data;
       } else {
-        console.error("Get data failed", response.status);
-        throw new UnauthorizedError();
+        console.error("Get data failed", ownerResponse.status);
+        // throw new UnauthorizedError();
+      }
+
+      const usersResponse = await axios.get<User>(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (usersResponse.status < 400) {
+        room["users"] = usersResponse.data;
+      } else {
+        console.error("Get data failed", usersResponse.status);
+        // throw new UnauthorizedError();
       }
     }
     return room;
