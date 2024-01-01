@@ -5,6 +5,8 @@ import {
   OnDisconnect,
   MessageBody,
   OnMessage,
+  SocketIO,
+  SocketQueryParam,
 } from "socket-controllers";
 import { Service } from "typedi";
 import { RoomsService } from "../../libs/services/rooms.service";
@@ -30,14 +32,20 @@ export class QuizzesSocketController {
   ) {}
 
   @OnConnect()
-  async connection(@ConnectedSocket() socket: Socket) {
+  async connection(
+    @ConnectedSocket() socket: Socket,
+    @SocketQueryParam("roomCode") roomCode: string
+  ) {
     const user = socket["user"] as User;
 
     console.info("Quizzes namespace is working...");
     socket.emit(SocketsEvents.STARTED, "Quizzes namespace is working...");
     socket.emit("load_user", user);
 
-    const roomCode = socket.handshake.query.roomCode as string;
+    // const roomCode = socket.handshake.query.roomCode as string;
+
+    console.log("Room code: ");
+    console.log(roomCode);
 
     if (!roomCode) return socket.disconnect();
 
@@ -52,11 +60,13 @@ export class QuizzesSocketController {
 
     socket.join(roomCode);
 
-    const quizzes = await this.quizzesService.getMany({ collections: {
-      every: {
-        quizCollectionId: room.quizCollectionId
-      }
-    }});
+    const quizzes = await this.quizzesService.getMany({
+      collections: {
+        every: {
+          quizCollectionId: room.quizCollectionId,
+        },
+      },
+    });
 
     socket.to(roomCode).emit(QuizzesEvents.LOADED_QUIZZES, quizzes);
 
@@ -144,5 +154,21 @@ export class QuizzesSocketController {
 
     socket.to(roomCode).emit(RoomsEvents.ENDED_ROOM, room.code);
     console.info(`User (${user.userName}) start room ${roomCode}`);
+  }
+
+  @OnMessage(QuizzesEvents.LOAD_CURRENT_QUIZ)
+  async loadQuiz(
+    @ConnectedSocket() socket: Socket,
+    @SocketIO() io: any,
+    @MessageBody() { roomCode }: { roomCode: string }
+  ) {
+    const room = await this.roomsService.getByCode(roomCode);
+
+    if (!room) return;
+
+    socket.emit(QuizzesEvents.LOADED_CURRENT_QUIZ, room.currentQuiz);
+    socket
+      .to(room.code)
+      .emit(QuizzesEvents.LOADED_CURRENT_QUIZ, room.currentQuiz);
   }
 }

@@ -28,7 +28,7 @@ let RoomsService = class RoomsService {
     getMany(filter, include) {
         return this.prisma.room.findMany({
             where: filter,
-            include: include,
+            include: Object.assign({ quizCollection: true, currentQuiz: true }, include),
         });
     }
     get(id) {
@@ -37,6 +37,7 @@ let RoomsService = class RoomsService {
                 id: id,
             },
             include: {
+                currentQuiz: true,
                 quizCollection: true,
             },
         });
@@ -45,6 +46,10 @@ let RoomsService = class RoomsService {
         return this.prisma.room.findFirst({
             where: {
                 code: code,
+            },
+            include: {
+                currentQuiz: true,
+                quizCollection: true,
             },
         });
     }
@@ -88,8 +93,6 @@ let RoomsService = class RoomsService {
                         id: "asc",
                     },
                 });
-                console.info("First Quiz");
-                console.info(firstQuiz);
                 if (firstQuiz) {
                     dataToUpdate.currentQuizId = firstQuiz.quizId;
                 }
@@ -121,8 +124,6 @@ let RoomsService = class RoomsService {
                         id: "asc",
                     },
                 });
-                console.info("First Quiz");
-                console.info(firstQuiz);
                 if (firstQuiz) {
                     dataToUpdate.currentQuizId = firstQuiz.quizId;
                 }
@@ -144,6 +145,8 @@ let RoomsService = class RoomsService {
                 },
                 data: {
                     isStarted: false,
+                    startedAt: null,
+                    currentQuizId: null,
                 },
             });
         });
@@ -156,6 +159,8 @@ let RoomsService = class RoomsService {
                 },
                 data: {
                     isStarted: false,
+                    startedAt: null,
+                    currentQuizId: null,
                 },
             });
         });

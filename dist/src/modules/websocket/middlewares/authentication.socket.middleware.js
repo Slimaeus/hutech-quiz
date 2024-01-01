@@ -32,23 +32,15 @@ let AuthenticationMiddleware = class AuthenticationMiddleware {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = socket.handshake.query["access_token"];
-                let tokenStr = "";
                 if (!token)
                     return next();
-                if (Array.isArray(token) &&
-                    token.every((item) => typeof item === "string")) {
-                    tokenStr = token.join("");
-                }
-                else {
-                    tokenStr = token;
-                }
-                const decoded = jsonwebtoken_1.default.verify(tokenStr, process.env.TOKEN_KEY, {
+                const decoded = jsonwebtoken_1.default.verify(token, process.env.TOKEN_KEY, {
                     algorithms: ["HS256"],
                     ignoreExpiration: isTest,
                 });
                 const response = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/@me`, {
                     headers: {
-                        Authorization: `Bearer ${tokenStr}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
                 if (response.status < 400) {

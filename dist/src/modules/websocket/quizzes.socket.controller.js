@@ -44,15 +44,11 @@ let QuizzesSocketController = class QuizzesSocketController {
             console.info("Quizzes namespace is working...");
             socket.emit(sockets_events_1.SocketsEvents.STARTED, "Quizzes namespace is working...");
             socket.emit("load_user", user);
-            const roomCodeParam = socket.handshake.query["roomCode"];
-            let roomCode = "";
-            if (!roomCodeParam)
-                return;
-            if (Array.isArray(roomCodeParam) &&
-                roomCodeParam.every((item) => typeof item === "string")) {
-                roomCode = roomCodeParam.join("");
-            }
-            roomCode = roomCodeParam;
+            const roomCode = socket.handshake.query.roomCode;
+            console.log("Room code: ");
+            console.log(roomCode);
+            if (!roomCode)
+                return socket.disconnect();
             const room = yield this.roomsService.getByCode(roomCode);
             if (!room)
                 return;
@@ -61,11 +57,13 @@ let QuizzesSocketController = class QuizzesSocketController {
                 roomFormValues.userIds.push(user.id);
             yield this.roomsService.update(room.id, roomFormValues);
             socket.join(roomCode);
-            const quizzes = yield this.quizzesService.getMany({ collections: {
+            const quizzes = yield this.quizzesService.getMany({
+                collections: {
                     every: {
-                        quizCollectionId: room.quizCollectionId
-                    }
-                } });
+                        quizCollectionId: room.quizCollectionId,
+                    },
+                },
+            });
             socket.to(roomCode).emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizzes);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             console.info(`User (${user.userName}) joined room ${roomCode}`);
@@ -110,7 +108,7 @@ let QuizzesSocketController = class QuizzesSocketController {
             if (!room || !room.ownerId || room.ownerId !== user.id)
                 return;
             yield this.roomsService.start(room.id);
-            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, room.id);
+            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, room.code);
             console.info(`User (${user.userName}) start room ${roomCode}`);
         });
     }
@@ -121,8 +119,22 @@ let QuizzesSocketController = class QuizzesSocketController {
             if (!room || !room.ownerId || room.ownerId !== user.id)
                 return;
             yield this.roomsService.end(room.id);
-            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.ENDED_ROOM, room.id);
+            socket.to(roomCode).emit(rooms_events_1.RoomsEvents.ENDED_ROOM, room.code);
             console.info(`User (${user.userName}) start room ${roomCode}`);
+        });
+    }
+    loadQuiz(socket, { roomCode }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.roomsService.getByCode(roomCode);
+            console.log("Room: ");
+            console.log(room);
+            if (!room)
+                return;
+            console.log("Current Quiz: ");
+            console.log(room.currentQuiz);
+            socket
+                .to(room.code)
+                .emit(quizzes_events_1.QuizzesEvents.LOADED_CURRENT_QUIZ, room.currentQuiz);
         });
     }
 };
@@ -174,6 +186,14 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], QuizzesSocketController.prototype, "endRoom", null);
+__decorate([
+    (0, socket_controllers_1.OnMessage)(quizzes_events_1.QuizzesEvents.LOAD_CURRENT_QUIZ),
+    __param(0, (0, socket_controllers_1.ConnectedSocket)()),
+    __param(1, (0, socket_controllers_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], QuizzesSocketController.prototype, "loadQuiz", null);
 exports.QuizzesSocketController = QuizzesSocketController = __decorate([
     (0, socket_controllers_1.SocketController)(QuizzesSocketController.namespace),
     (0, typedi_1.Service)(),
