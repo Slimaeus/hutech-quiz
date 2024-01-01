@@ -148,17 +148,19 @@ let QuizzesSocketController = class QuizzesSocketController {
             recordFormValues.quizId = quizId;
             recordFormValues.userId = user.id;
             recordFormValues.roomId = room.id;
-            yield this.recordsService.create(recordFormValues);
-            socket.emit(quizzes_events_1.QuizzesEvents.ANSWERED_QUIZ, recordFormValues);
+            const result = yield this.recordsService.create(recordFormValues);
+            const formattedUser = {
+                id: user.id,
+                userName: user.userName,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                avatarUrl: user.avatarUrl,
+            };
+            result["user"] = formattedUser;
+            socket.emit(quizzes_events_1.QuizzesEvents.ANSWERED_QUIZ, result);
             socket.to(room.code).emit(quizzes_events_1.QuizzesEvents.ANSWERED_QUIZ, {
-                user: {
-                    id: user.id,
-                    userName: user.userName,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    avatarUrl: user.avatarUrl,
-                },
+                user: formattedUser,
             });
         });
     }

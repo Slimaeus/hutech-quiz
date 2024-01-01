@@ -24,7 +24,10 @@ const routingControllerOptions: RoutingControllersOptions = {
   controllers: [`${__dirname}/http/*.controller.*`],
   validation: true,
   classTransformer: true,
-  cors: false,
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  },
   defaultErrorHandler: true,
   currentUserChecker: (action: Action) => {
     const authorizationHeader: string = action.request.headers["authorization"];

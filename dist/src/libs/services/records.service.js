@@ -41,6 +41,11 @@ let RecordsService = class RecordsService {
     create(data) {
         return this.prisma.record.create({
             data: data,
+            include: {
+                answer: true,
+                quiz: true,
+                room: true
+            }
         });
     }
     update(id, data) {
