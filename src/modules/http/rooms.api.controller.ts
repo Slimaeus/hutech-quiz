@@ -36,7 +36,9 @@ class RoomsController {
   @HttpCode(200)
   @Authorized()
   @Get()
-  getRooms() {
+  getRooms(
+    @HeaderParam("authorization") token: string) {
+    if (token) return this.roomsService.getMany({}, {}, token.split(" ")[1]);
     return this.roomsService.getMany();
   }
 

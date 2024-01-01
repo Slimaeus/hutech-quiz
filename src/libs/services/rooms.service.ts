@@ -10,18 +10,51 @@ import { UnauthorizedError } from "routing-controllers";
 export class RoomsService {
   constructor(private readonly prisma: PrismaClient) {}
 
-  getMany(
+  async getMany(
     filter?: Prisma.RoomWhereInput,
-    include?: Prisma.RoomInclude<DefaultArgs>
+    include?: Prisma.RoomInclude<DefaultArgs>,
+    token?: string
   ): Promise<Room[]> {
-    return this.prisma.room.findMany({
-      where: filter,
+    // ! Also get the owner for each room
+    const rooms = await this.prisma.room.findMany({
+      where: { ...filter },
       include: {
         quizCollection: true,
         currentQuiz: true,
         ...include,
       },
     });
+
+    const ownerIds = rooms.map((x) => x.ownerId);
+
+    if (ownerIds.length > 0 && token) {
+      const usersResponse = await axios.get<User[]>(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.map(
+          (id) => `userIds=${id}&`
+        )}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (usersResponse.status < 400 && usersResponse.data) {
+        const ownerRegistry = usersResponse.data.reduce(
+          (dict, user, index) => ((dict[user.id] = user), dict),
+          {}
+        );
+        rooms.forEach((room) => {
+          const owner = ownerRegistry[room.ownerId];
+          if (owner) room["owner"] = owner;
+        });
+      } else {
+        console.error("Get data failed", usersResponse.status);
+        // throw new UnauthorizedError();
+      }
+    }
+
+    return rooms;
   }
 
   async get(id: string, token?: string): Promise<Room> {
@@ -52,8 +85,10 @@ export class RoomsService {
         // throw new UnauthorizedError();
       }
 
-      const usersResponse = await axios.get<User>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`,
+      const usersResponse = await axios.get<User[]>(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map(
+          (id) => `userIds=${id}&`
+        )}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -119,7 +154,9 @@ export class RoomsService {
       }
 
       const usersResponse = await axios.get<User>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`,
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map(
+          (id) => `userIds=${id}&`
+        )}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
