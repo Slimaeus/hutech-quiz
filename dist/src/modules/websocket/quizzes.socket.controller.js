@@ -32,19 +32,22 @@ const socket_io_1 = require("socket.io");
 const quizzes_events_1 = require("../../libs/events/quizzes.events");
 const quizCollections_service_1 = require("../../libs/services/quizCollections.service");
 const quizzes_service_1 = require("../../libs/services/quizzes.service");
+const records_service_1 = require("../../libs/services/records.service");
+const record_1 = require("../../models/record");
 let QuizzesSocketController = class QuizzesSocketController {
-    constructor(roomsService, quizCollectionsService, quizzesService) {
+    constructor(roomsService, quizCollectionsService, quizzesService, recordsService) {
         this.roomsService = roomsService;
         this.quizCollectionsService = quizCollectionsService;
         this.quizzesService = quizzesService;
+        this.recordsService = recordsService;
     }
-    connection(socket) {
+    connection(socket, roomCode) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = socket["user"];
             console.info("Quizzes namespace is working...");
             socket.emit(sockets_events_1.SocketsEvents.STARTED, "Quizzes namespace is working...");
             socket.emit("load_user", user);
-            const roomCode = socket.handshake.query.roomCode;
+            // const roomCode = socket.handshake.query.roomCode as string;
             console.log("Room code: ");
             console.log(roomCode);
             if (!roomCode)
@@ -126,15 +129,37 @@ let QuizzesSocketController = class QuizzesSocketController {
     loadQuiz(socket, { roomCode }) {
         return __awaiter(this, void 0, void 0, function* () {
             const room = yield this.roomsService.getByCode(roomCode);
-            console.log("Room: ");
-            console.log(room);
             if (!room)
                 return;
-            console.log("Current Quiz: ");
-            console.log(room.currentQuiz);
+            socket.emit(quizzes_events_1.QuizzesEvents.LOADED_CURRENT_QUIZ, room.currentQuiz);
             socket
                 .to(room.code)
                 .emit(quizzes_events_1.QuizzesEvents.LOADED_CURRENT_QUIZ, room.currentQuiz);
+        });
+    }
+    answerQuiz(socket, roomCode, { quizId, answerId }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = socket["user"];
+            const room = yield this.roomsService.getByCode(roomCode);
+            if (!room)
+                return;
+            const recordFormValues = new record_1.RecordFormValues();
+            recordFormValues.answerId = answerId;
+            recordFormValues.quizId = quizId;
+            recordFormValues.userId = user.id;
+            recordFormValues.roomId = room.id;
+            yield this.recordsService.create(recordFormValues);
+            socket.emit(quizzes_events_1.QuizzesEvents.ANSWERED_QUIZ, recordFormValues);
+            socket.to(room.code).emit(quizzes_events_1.QuizzesEvents.ANSWERED_QUIZ, {
+                user: {
+                    id: user.id,
+                    userName: user.userName,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    avatarUrl: user.avatarUrl,
+                },
+            });
         });
     }
 };
@@ -143,8 +168,9 @@ QuizzesSocketController.namespace = "/hubs/quizzes";
 __decorate([
     (0, socket_controllers_1.OnConnect)(),
     __param(0, (0, socket_controllers_1.ConnectedSocket)()),
+    __param(1, (0, socket_controllers_1.SocketQueryParam)("roomCode")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket]),
+    __metadata("design:paramtypes", [socket_io_1.Socket, String]),
     __metadata("design:returntype", Promise)
 ], QuizzesSocketController.prototype, "connection", null);
 __decorate([
@@ -194,10 +220,20 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], QuizzesSocketController.prototype, "loadQuiz", null);
+__decorate([
+    (0, socket_controllers_1.OnMessage)(quizzes_events_1.QuizzesEvents.ANSWER_QUIZ),
+    __param(0, (0, socket_controllers_1.ConnectedSocket)()),
+    __param(1, (0, socket_controllers_1.SocketQueryParam)("roomCode")),
+    __param(2, (0, socket_controllers_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, String, Object]),
+    __metadata("design:returntype", Promise)
+], QuizzesSocketController.prototype, "answerQuiz", null);
 exports.QuizzesSocketController = QuizzesSocketController = __decorate([
     (0, socket_controllers_1.SocketController)(QuizzesSocketController.namespace),
     (0, typedi_1.Service)(),
     __metadata("design:paramtypes", [rooms_service_1.RoomsService,
         quizCollections_service_1.QuizCollectionsService,
-        quizzes_service_1.QuizzesService])
+        quizzes_service_1.QuizzesService,
+        records_service_1.RecordsService])
 ], QuizzesSocketController);

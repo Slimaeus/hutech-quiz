@@ -48,7 +48,11 @@ let RoomsService = class RoomsService {
                 code: code,
             },
             include: {
-                currentQuiz: true,
+                currentQuiz: {
+                    include: {
+                        answers: true
+                    }
+                },
                 quizCollection: true,
             },
         });
