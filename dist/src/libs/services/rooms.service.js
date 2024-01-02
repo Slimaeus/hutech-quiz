@@ -25,15 +25,39 @@ exports.RoomsService = void 0;
 const client_1 = require("@prisma/client");
 const typedi_1 = require("typedi");
 const axios_1 = __importDefault(require("axios"));
-const routing_controllers_1 = require("routing-controllers");
 let RoomsService = class RoomsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    getMany(filter, include) {
-        return this.prisma.room.findMany({
-            where: filter,
-            include: Object.assign({ quizCollection: true, currentQuiz: true }, include),
+    getMany(filter, include, token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // ! Also get the owner for each room
+            const rooms = yield this.prisma.room.findMany({
+                where: Object.assign({}, filter),
+                include: Object.assign({ quizCollection: true, currentQuiz: true }, include),
+            });
+            const ownerIds = rooms.map((x) => x.ownerId);
+            if (ownerIds.length > 0 && token) {
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.map((id) => `userIds=${id}&`)}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (usersResponse.status < 400 && usersResponse.data) {
+                    const ownerRegistry = usersResponse.data.reduce((dict, user, index) => ((dict[user.id] = user), dict), {});
+                    rooms.forEach((room) => {
+                        const owner = ownerRegistry[room.ownerId];
+                        if (owner)
+                            room["owner"] = owner;
+                    });
+                }
+                else {
+                    console.error("Get data failed", usersResponse.status);
+                    // throw new UnauthorizedError();
+                }
+            }
+            console.log(rooms);
+            return rooms;
         });
     }
     get(id, token) {
@@ -48,35 +72,76 @@ let RoomsService = class RoomsService {
                 },
             });
             if (room.ownerId && token) {
-                const response = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`, {
+                const ownerResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                if (response.status < 400) {
-                    room["owner"] = response.data;
+                if (ownerResponse.status < 400) {
+                    room["owner"] = ownerResponse.data;
                 }
                 else {
-                    console.error("Get data failed", response.status);
-                    throw new routing_controllers_1.UnauthorizedError();
+                    console.error("Get data failed", ownerResponse.status);
+                    // throw new UnauthorizedError();
+                }
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (usersResponse.status < 400) {
+                    room["users"] = usersResponse.data;
+                }
+                else {
+                    console.error("Get data failed", usersResponse.status);
+                    // throw new UnauthorizedError();
                 }
             }
             return room;
         });
     }
-    getByCode(code) {
-        return this.prisma.room.findFirst({
-            where: {
-                code: code,
-            },
-            include: {
-                currentQuiz: {
-                    include: {
-                        answers: true
-                    }
+    getByCode(code, token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.prisma.room.findFirst({
+                where: {
+                    code: code,
                 },
-                quizCollection: true,
-            },
+                include: {
+                    currentQuiz: {
+                        include: {
+                            answers: true,
+                        },
+                    },
+                    quizCollection: true,
+                },
+            });
+            if (room.ownerId && token) {
+                const ownerResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (ownerResponse.status < 400) {
+                    room["owner"] = ownerResponse.data;
+                }
+                else {
+                    console.error("Get data failed", ownerResponse.status);
+                    // throw new UnauthorizedError();
+                }
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (usersResponse.status < 400) {
+                    room["users"] = usersResponse.data;
+                }
+                else {
+                    console.error("Get data failed", usersResponse.status);
+                    // throw new UnauthorizedError();
+                }
+            }
+            return room;
         });
     }
     create(data) {

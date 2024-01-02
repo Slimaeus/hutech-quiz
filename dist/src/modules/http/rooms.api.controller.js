@@ -40,15 +40,19 @@ let RoomsController = class RoomsController {
         this.websocket = websocket;
         this.prisma = new client_1.PrismaClient();
     }
-    getRooms() {
+    getRooms(token) {
+        if (token)
+            return this.roomsService.getMany({}, {}, token.split(" ")[1]);
         return this.roomsService.getMany();
     }
     getRoom(roomId, token) {
         if (token)
-            return this.roomsService.get(roomId, token.split(" ")[0]);
+            return this.roomsService.get(roomId, token.split(" ")[1]);
         return this.roomsService.get(roomId);
     }
-    getRoomByCode(code) {
+    getRoomByCode(code, token) {
+        if (token)
+            return this.roomsService.getByCode(code, token.split(" ")[1]);
         return this.roomsService.getByCode(code);
     }
     insertRoom(roomFormValues, user) {
@@ -112,8 +116,9 @@ __decorate([
     (0, routing_controllers_1.HttpCode)(200),
     (0, routing_controllers_1.Authorized)(),
     (0, routing_controllers_1.Get)(),
+    __param(0, (0, routing_controllers_1.HeaderParam)("authorization")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "getRooms", null);
 __decorate([
@@ -129,8 +134,9 @@ __decorate([
     (0, routing_controllers_1.HttpCode)(200),
     (0, routing_controllers_1.Get)("/code/:code"),
     __param(0, (0, routing_controllers_1.Param)("code")),
+    __param(1, (0, routing_controllers_1.HeaderParam)("authorization")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "getRoomByCode", null);
 __decorate([

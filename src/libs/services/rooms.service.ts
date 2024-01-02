@@ -29,9 +29,9 @@ export class RoomsService {
 
     if (ownerIds.length > 0 && token) {
       const usersResponse = await axios.get<User[]>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.map(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map(
           (id) => `userIds=${id}&`
-        )}`,
+        ).join('')}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export class RoomsService {
 
       if (usersResponse.status < 400 && usersResponse.data) {
         const ownerRegistry = usersResponse.data.reduce(
-          (dict, user, index) => ((dict[user.id] = user), dict),
+          (dict, user) => ((dict[user.id] = user), dict),
           {}
         );
         rooms.forEach((room) => {
@@ -53,7 +53,7 @@ export class RoomsService {
         // throw new UnauthorizedError();
       }
     }
-
+    
     return rooms;
   }
 
