@@ -86,6 +86,7 @@ let RoomsController = class RoomsController {
             yield this.roomsService.end(roomId);
             this.websocket
                 .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .to(roomCode)
                 .emit(rooms_events_1.RoomsEvents.ENDED_ROOM, roomCode);
         });
     }
@@ -98,6 +99,7 @@ let RoomsController = class RoomsController {
             yield this.roomsService.pause(roomId);
             this.websocket
                 .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .to(roomCode)
                 .emit(rooms_events_1.RoomsEvents.PAUSED_ROOM, roomCode);
         });
     }

@@ -166,6 +166,8 @@ export class RoomsService {
       },
     });
 
+    if (!room) return null;
+
     if (room.ownerId && token) {
       const ownerResponse = await axios.get<User>(
         `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`,
@@ -260,7 +262,7 @@ export class RoomsService {
         (x) => x.quizId === room.currentQuizId
       );
 
-      if (currentQuizIndex !== -1 && !currentQuizIndex) {
+      if (currentQuizIndex === -1 || !room.currentQuizId) {
         const firstQuiz = quizzes[0];
         if (firstQuiz) {
           dataToUpdate.currentQuizId = firstQuiz.quizId;
@@ -307,7 +309,7 @@ export class RoomsService {
         (x) => x.quizId === room.currentQuizId
       );
 
-      if (currentQuizIndex !== -1 && !currentQuizIndex) {
+      if (currentQuizIndex === -1 || !room.currentQuizId) {
         const firstQuiz = quizzes[0];
         if (firstQuiz) {
           dataToUpdate.currentQuizId = firstQuiz.quizId;
