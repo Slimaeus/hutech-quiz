@@ -12,8 +12,13 @@ export class QuizCollectionsService {
     include?: Prisma.QuizCollectionInclude<DefaultArgs>
   ): Promise<QuizCollection[]> {
     return this.prisma.quizCollection.findMany({
-      where: filter,
-      include: include,
+      where: {
+        ...filter
+      },
+      include: {
+        ...include,
+        quizzes: true
+      } 
     });
   }
 
@@ -22,7 +27,7 @@ export class QuizCollectionsService {
     return this.prisma.quizCollection.findFirst({
       where: {
         id: id,
-        ...filter
+        // ...filter
       },
       include: include
     });

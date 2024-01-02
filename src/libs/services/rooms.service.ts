@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Room } from "@prisma/client";
+import { Prisma, PrismaClient, Quiz, Room } from "@prisma/client";
 import { RoomFormValues } from "../../models/room";
 import { Service } from "typedi";
 import { DefaultArgs } from "@prisma/client/runtime/library";
@@ -59,14 +59,25 @@ export class RoomsService {
     return rooms;
   }
 
-  async get(id: string, token?: string): Promise<Room> {
+  async get(id: string, token?: string, 
+    include?: Prisma.RoomInclude<DefaultArgs>): Promise<Room> {
     const room = await this.prisma.room.findFirst({
       where: {
         id: id,
       },
       include: {
-        currentQuiz: true,
+        currentQuiz: {
+          include: {
+            answers: true
+          }
+        },
         quizCollection: true,
+        records: {
+          include: {
+            answer: true,
+            quiz: true,
+          }
+        }
       },
     });
 
@@ -113,7 +124,8 @@ export class RoomsService {
 
   async getByCode(
     code: string,
-    token?: string
+    token?: string, 
+    include?: Prisma.RoomInclude<DefaultArgs>
   ): Promise<
     Prisma.RoomGetPayload<{
       include: {
@@ -133,10 +145,16 @@ export class RoomsService {
       include: {
         currentQuiz: {
           include: {
-            answers: true,
-          },
+            answers: true
+          }
         },
         quizCollection: true,
+        records: {
+          include: {
+            answer: true,
+            quiz: true,
+          }
+        }
       },
     });
 
@@ -235,7 +253,7 @@ export class RoomsService {
         const nextQuizIndex = currentQuizIndex + 1;
         if (nextQuizIndex < quizzes.length) {
           const nextQuiz = quizzes[nextQuizIndex];
-          dataToUpdate.currentQuizId = nextQuiz.id;
+          dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
           dataToUpdate.currentQuizId = null;
         }
@@ -282,7 +300,7 @@ export class RoomsService {
         const nextQuizIndex = currentQuizIndex + 1;
         if (nextQuizIndex < quizzes.length) {
           const nextQuiz = quizzes[nextQuizIndex];
-          dataToUpdate.currentQuizId = nextQuiz.id;
+          dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
           dataToUpdate.currentQuizId = null;
         }

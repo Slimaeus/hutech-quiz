@@ -87,6 +87,18 @@ let RoomsController = class RoomsController {
                 .emit(rooms_events_1.RoomsEvents.ENDED_ROOM, roomCode);
         });
     }
+    pauseRoom(roomId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.roomsService.get(roomId);
+            const roomCode = room.code;
+            if (!roomCode)
+                return;
+            yield this.roomsService.pause(roomId);
+            this.websocket
+                .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .emit(rooms_events_1.RoomsEvents.PAUSED_ROOM, roomCode);
+        });
+    }
     startRoomByCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.roomsService.startByCode(code);
@@ -103,6 +115,15 @@ let RoomsController = class RoomsController {
                 .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
                 .to(code)
                 .emit(rooms_events_1.RoomsEvents.ENDED_ROOM, code);
+        });
+    }
+    pauseRoomByCode(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.roomsService.pauseByCode(code);
+            this.websocket
+                .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .to(code)
+                .emit(rooms_events_1.RoomsEvents.PAUSED_ROOM, code);
         });
     }
     updateRoom(roomId, roomFormValues) {
@@ -168,6 +189,14 @@ __decorate([
 ], RoomsController.prototype, "stopRoom", null);
 __decorate([
     (0, routing_controllers_1.OnUndefined)(204),
+    (0, routing_controllers_1.Patch)("/:roomId/pause"),
+    __param(0, (0, routing_controllers_1.Param)("roomId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], RoomsController.prototype, "pauseRoom", null);
+__decorate([
+    (0, routing_controllers_1.OnUndefined)(204),
     (0, routing_controllers_1.Patch)("/code/:code/start"),
     __param(0, (0, routing_controllers_1.Param)("code")),
     __metadata("design:type", Function),
@@ -182,6 +211,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], RoomsController.prototype, "stopRoomByCode", null);
+__decorate([
+    (0, routing_controllers_1.OnUndefined)(204),
+    (0, routing_controllers_1.Patch)("code/:code/pause"),
+    __param(0, (0, routing_controllers_1.Param)("code")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], RoomsController.prototype, "pauseRoomByCode", null);
 __decorate([
     (0, routing_controllers_1.OnUndefined)(204),
     (0, routing_controllers_1.Put)("/:roomId"),

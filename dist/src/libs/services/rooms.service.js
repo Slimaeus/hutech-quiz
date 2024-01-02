@@ -64,7 +64,7 @@ let RoomsService = class RoomsService {
             return rooms;
         });
     }
-    get(id, token) {
+    get(id, token, include) {
         return __awaiter(this, void 0, void 0, function* () {
             const room = yield this.prisma.room.findFirst({
                 where: {
@@ -73,6 +73,12 @@ let RoomsService = class RoomsService {
                 include: {
                     currentQuiz: true,
                     quizCollection: true,
+                    records: {
+                        include: {
+                            answer: true,
+                            quiz: true,
+                        }
+                    }
                 },
             });
             if (room.ownerId && token) {
@@ -108,7 +114,7 @@ let RoomsService = class RoomsService {
             return room;
         });
     }
-    getByCode(code, token) {
+    getByCode(code, token, include) {
         return __awaiter(this, void 0, void 0, function* () {
             const room = yield this.prisma.room.findFirst({
                 where: {
@@ -121,6 +127,12 @@ let RoomsService = class RoomsService {
                         },
                     },
                     quizCollection: true,
+                    records: {
+                        include: {
+                            answer: true,
+                            quiz: true,
+                        }
+                    }
                 },
             });
             if (room.ownerId && token) {
@@ -265,6 +277,34 @@ let RoomsService = class RoomsService {
                     code: code,
                 },
                 data: dataToUpdate,
+            });
+        });
+    }
+    pause(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.prisma.room.update({
+                where: {
+                    id: id,
+                },
+                data: {
+                    isStarted: false,
+                    // startedAt: null,
+                    // currentQuizId: null,
+                },
+            });
+        });
+    }
+    pauseByCode(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.prisma.room.update({
+                where: {
+                    code: code,
+                },
+                data: {
+                    isStarted: false,
+                    // startedAt: null,
+                    // currentQuizId: null,
+                },
             });
         });
     }
