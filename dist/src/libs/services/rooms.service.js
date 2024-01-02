@@ -39,7 +39,11 @@ let RoomsService = class RoomsService {
             });
             const ownerIds = rooms.map((x) => x.ownerId);
             if (ownerIds.length > 0 && token) {
-                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map((id) => `userIds=${id}&`).join('')}`, {
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds
+                    .filter((id, index, self) => self.indexOf(id) === index)
+                    .filter((id) => id)
+                    .map((id) => `userIds=${id}&`)
+                    .join("")}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -84,7 +88,11 @@ let RoomsService = class RoomsService {
                     console.error("Get data failed", ownerResponse.status);
                     // throw new UnauthorizedError();
                 }
-                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map((id) => `userIds=${id}&`).join('')}`, {
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds
+                    .filter((id, index, self) => self.indexOf(id) === index)
+                    .filter((id) => id)
+                    .map((id) => `userIds=${id}&`)
+                    .join("")}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -128,7 +136,11 @@ let RoomsService = class RoomsService {
                     console.error("Get data failed", ownerResponse.status);
                     // throw new UnauthorizedError();
                 }
-                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map((id) => `userIds=${id}&`).join('')}`, {
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds
+                    .filter((id, index, self) => self.indexOf(id) === index)
+                    .filter((id) => id)
+                    .map((id) => `userIds=${id}&`)
+                    .join("")}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -184,8 +196,8 @@ let RoomsService = class RoomsService {
                         id: "asc",
                     },
                 });
-                const currentQuizIndex = quizzes.findIndex(x => x.id === room.currentQuizId);
-                if (currentQuizIndex === -1) {
+                const currentQuizIndex = quizzes.findIndex((x) => x.quizId === room.currentQuizId);
+                if (currentQuizIndex !== -1 && !currentQuizIndex) {
                     const firstQuiz = quizzes[0];
                     if (firstQuiz) {
                         dataToUpdate.currentQuizId = firstQuiz.quizId;
@@ -196,6 +208,9 @@ let RoomsService = class RoomsService {
                     if (nextQuizIndex < quizzes.length) {
                         const nextQuiz = quizzes[nextQuizIndex];
                         dataToUpdate.currentQuizId = nextQuiz.id;
+                    }
+                    else {
+                        dataToUpdate.currentQuizId = null;
                     }
                 }
             }
@@ -218,7 +233,7 @@ let RoomsService = class RoomsService {
                 startedAt: new Date(),
             };
             if (room.quizCollectionId) {
-                const firstQuiz = yield this.prisma.quizToQuizCollection.findFirst({
+                const quizzes = yield this.prisma.quizToQuizCollection.findMany({
                     where: {
                         quizCollectionId: room.quizCollectionId,
                     },
@@ -226,8 +241,22 @@ let RoomsService = class RoomsService {
                         id: "asc",
                     },
                 });
-                if (firstQuiz) {
-                    dataToUpdate.currentQuizId = firstQuiz.quizId;
+                const currentQuizIndex = quizzes.findIndex((x) => x.quizId === room.currentQuizId);
+                if (currentQuizIndex !== -1 && !currentQuizIndex) {
+                    const firstQuiz = quizzes[0];
+                    if (firstQuiz) {
+                        dataToUpdate.currentQuizId = firstQuiz.quizId;
+                    }
+                }
+                else {
+                    const nextQuizIndex = currentQuizIndex + 1;
+                    if (nextQuizIndex < quizzes.length) {
+                        const nextQuiz = quizzes[nextQuizIndex];
+                        dataToUpdate.currentQuizId = nextQuiz.id;
+                    }
+                    else {
+                        dataToUpdate.currentQuizId = null;
+                    }
                 }
             }
             // Start the room and set the current quiz

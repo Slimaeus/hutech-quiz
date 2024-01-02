@@ -170,6 +170,12 @@ let QuizzesSocketController = class QuizzesSocketController {
             });
         });
     }
+    startedRoom(roomCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('Room started');
+            console.log(roomCode);
+        });
+    }
 };
 exports.QuizzesSocketController = QuizzesSocketController;
 QuizzesSocketController.namespace = "/hubs/quizzes";
@@ -237,6 +243,13 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, String, Object]),
     __metadata("design:returntype", Promise)
 ], QuizzesSocketController.prototype, "answerQuiz", null);
+__decorate([
+    (0, socket_controllers_1.OnMessage)(rooms_events_1.RoomsEvents.STARTED_ROOM),
+    __param(0, (0, socket_controllers_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], QuizzesSocketController.prototype, "startedRoom", null);
 exports.QuizzesSocketController = QuizzesSocketController = __decorate([
     (0, socket_controllers_1.SocketController)(QuizzesSocketController.namespace),
     (0, typedi_1.Service)(),

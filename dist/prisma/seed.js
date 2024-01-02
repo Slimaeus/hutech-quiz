@@ -13,18 +13,24 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
+        yield prisma.record.deleteMany();
         yield prisma.answer.deleteMany();
         yield prisma.quizToQuizCollection.deleteMany();
         yield prisma.quiz.deleteMany();
         yield prisma.quizCollection.deleteMany();
-        const quizzes = [
+        const firstCollectionQuizzes = [
             {
                 content: "1 + 1 = ",
-                explaination: "Một cộng một bằng mấy?",
+                explaination: "Một cộng một bằng hai",
+                score: 1,
+            },
+            {
+                content: "3 -  2 = ",
+                explaination: "Ba trừ hai bằng một",
                 score: 1,
             },
         ];
-        const answers = [
+        const firstCollectionAnswers = [
             [
                 {
                     content: "1",
@@ -37,17 +43,29 @@ function main() {
                 { content: "3", isCorrect: false },
                 { content: "4", isCorrect: false },
             ],
+            [
+                {
+                    content: "1",
+                    isCorrect: true,
+                },
+                {
+                    content: "2",
+                    isCorrect: false,
+                },
+                { content: "3", isCorrect: false },
+                { content: "4", isCorrect: false },
+            ]
         ];
-        const quizResult = yield Promise.all(quizzes.map((q, i) => {
+        const quizResult = yield Promise.all(firstCollectionQuizzes.map((q, i) => {
             return prisma.quiz.create({
                 data: Object.assign(Object.assign({}, q), { answers: {
                         createMany: {
-                            data: answers[i],
+                            data: firstCollectionAnswers[i],
                         },
                     } }),
             });
         }));
-        const quizCollection = yield prisma.quizCollection.create({
+        const firstQuizCollection = yield prisma.quizCollection.create({
             data: {
                 name: "Toán cấp 1",
                 quizzes: {
@@ -59,19 +77,65 @@ function main() {
                 },
             },
         });
-        // const answer = await prisma.answer.create({
-        //   data: {
-        //     content: "No",
-        //     isCorrect: true,
-        //     quiz: {
-        //       create: {
-        //         content: "Are you robot?",
-        //         explaination: "Verify!",
-        //         score: 1,
-        //       },
-        //     },
-        //   },
-        // });
+        const secondCollectionQuizzes = [
+            {
+                content: "2x + 4 = 0. x = ?",
+                explaination: "Phương trình bậc một",
+                score: 5,
+            },
+            {
+                content: "-3x + 12 = 0. x = ?",
+                explaination: "Phương trình bậc một",
+                score: 5,
+            },
+        ];
+        const secondCollectionAnswers = [
+            [
+                {
+                    content: "-2",
+                    isCorrect: true,
+                },
+                {
+                    content: "-1",
+                    isCorrect: false,
+                },
+                { content: "0", isCorrect: false },
+                { content: "2", isCorrect: false },
+            ],
+            [
+                {
+                    content: "1",
+                    isCorrect: false,
+                },
+                {
+                    content: "2",
+                    isCorrect: false,
+                },
+                { content: "3", isCorrect: false },
+                { content: "4", isCorrect: true },
+            ]
+        ];
+        const secondQuizResult = yield Promise.all(secondCollectionQuizzes.map((q, i) => {
+            return prisma.quiz.create({
+                data: Object.assign(Object.assign({}, q), { answers: {
+                        createMany: {
+                            data: secondCollectionAnswers[i],
+                        },
+                    } }),
+            });
+        }));
+        const secondQuizCollection = yield prisma.quizCollection.create({
+            data: {
+                name: "Toán cấp 2",
+                quizzes: {
+                    create: secondQuizResult.map((q) => {
+                        return {
+                            quizId: q.id,
+                        };
+                    }),
+                },
+            },
+        });
     });
 }
 main().catch((e) => {

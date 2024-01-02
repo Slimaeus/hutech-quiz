@@ -298,6 +298,32 @@ export class RoomsService {
     });
   }
 
+  async pause(id: string) {
+    await this.prisma.room.update({
+      where: {
+        id: id,
+      },
+      data: {
+        isStarted: false,
+        // startedAt: null,
+        // currentQuizId: null,
+      },
+    });
+  }
+
+  async pauseByCode(code: string) {
+    await this.prisma.room.update({
+      where: {
+        code: code,
+      },
+      data: {
+        isStarted: false,
+        // startedAt: null,
+        // currentQuizId: null,
+      },
+    });
+  }
+
   async end(id: string) {
     await this.prisma.room.update({
       where: {

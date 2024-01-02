@@ -215,4 +215,12 @@ export class QuizzesSocketController {
       user: formattedUser,
     });
   }
+
+  // @OnMessage(RoomsEvents.STARTED_ROOM)
+  // async startedRoom(@MessageBody() roomCode : string) {
+
+  //   const room = await this.roomsService.getByCode(roomCode);
+
+  //   if (!room) return;
+  // }
 }
