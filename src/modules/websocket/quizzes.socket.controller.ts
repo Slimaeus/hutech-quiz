@@ -60,6 +60,8 @@ export class QuizzesSocketController {
       roomFormValues.userIds.push(user.id);
     await this.roomsService.update(room.id, roomFormValues);
 
+    console.log(roomFormValues)
+
     socket.join(roomCode);
 
     const quizzes = await this.quizzesService.getMany({

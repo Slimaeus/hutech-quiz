@@ -38,13 +38,13 @@ let RoomsService = class RoomsService {
             });
             const ownerIds = rooms.map((x) => x.ownerId);
             if (ownerIds.length > 0 && token) {
-                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.map((id) => `userIds=${id}&`)}`, {
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map((id) => `userIds=${id}&`).join('')}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
                 if (usersResponse.status < 400 && usersResponse.data) {
-                    const ownerRegistry = usersResponse.data.reduce((dict, user, index) => ((dict[user.id] = user), dict), {});
+                    const ownerRegistry = usersResponse.data.reduce((dict, user) => ((dict[user.id] = user), dict), {});
                     rooms.forEach((room) => {
                         const owner = ownerRegistry[room.ownerId];
                         if (owner)
@@ -56,7 +56,6 @@ let RoomsService = class RoomsService {
                     // throw new UnauthorizedError();
                 }
             }
-            console.log(rooms);
             return rooms;
         });
     }

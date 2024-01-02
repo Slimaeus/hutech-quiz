@@ -59,6 +59,7 @@ let QuizzesSocketController = class QuizzesSocketController {
             if (!roomFormValues.userIds.includes(user.id))
                 roomFormValues.userIds.push(user.id);
             yield this.roomsService.update(room.id, roomFormValues);
+            console.log(roomFormValues);
             socket.join(roomCode);
             const quizzes = yield this.quizzesService.getMany({
                 collections: {
@@ -67,7 +68,7 @@ let QuizzesSocketController = class QuizzesSocketController {
                     },
                 },
             });
-            socket.to(roomCode).emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizzes);
+            socket.emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizzes);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             console.info(`User (${user.userName}) joined room ${roomCode}`);
         });

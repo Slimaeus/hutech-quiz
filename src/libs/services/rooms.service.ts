@@ -86,9 +86,9 @@ export class RoomsService {
       }
 
       const usersResponse = await axios.get<User[]>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map(
           (id) => `userIds=${id}&`
-        )}`,
+        ).join('')}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,9 +154,9 @@ export class RoomsService {
       }
 
       const usersResponse = await axios.get<User>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map(
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map(
           (id) => `userIds=${id}&`
-        )}`,
+        ).join('')}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
