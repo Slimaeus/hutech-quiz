@@ -113,6 +113,14 @@ export class RoomsService {
 
       if (usersResponse.status < 400) {
         room["users"] = usersResponse.data;
+
+        const userRegistry = usersResponse.data.reduce((dict, user) => ((dict[user.id] = user), dict), {});
+        
+        room.records.forEach((record) => {
+            const user = userRegistry[record.userId];
+            if (user)
+                record["user"] = user;
+        });
       } else {
         console.error("Get data failed", usersResponse.status);
         // throw new UnauthorizedError();
@@ -175,7 +183,7 @@ export class RoomsService {
         // throw new UnauthorizedError();
       }
 
-      const usersResponse = await axios.get<User>(
+      const usersResponse = await axios.get<User[]>(
         `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds
           .filter((id, index, self) => self.indexOf(id) === index)
           .filter((id) => id)
@@ -190,6 +198,14 @@ export class RoomsService {
 
       if (usersResponse.status < 400) {
         room["users"] = usersResponse.data;
+
+        const userRegistry = usersResponse.data.reduce((dict, user) => ((dict[user.id] = user), dict), {});
+        
+        room.records.forEach((record) => {
+            const user = userRegistry[record.userId];
+            if (user)
+                record["user"] = user;
+        });
       } else {
         console.error("Get data failed", usersResponse.status);
         // throw new UnauthorizedError();
