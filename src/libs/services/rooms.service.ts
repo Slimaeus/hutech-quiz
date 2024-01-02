@@ -59,8 +59,11 @@ export class RoomsService {
     return rooms;
   }
 
-  async get(id: string, token?: string, 
-    include?: Prisma.RoomInclude<DefaultArgs>): Promise<Room> {
+  async get(
+    id: string,
+    token?: string,
+    include?: Prisma.RoomInclude<DefaultArgs>
+  ): Promise<Room> {
     const room = await this.prisma.room.findFirst({
       where: {
         id: id,
@@ -68,16 +71,16 @@ export class RoomsService {
       include: {
         currentQuiz: {
           include: {
-            answers: true
-          }
+            answers: true,
+          },
         },
         quizCollection: true,
         records: {
           include: {
             answer: true,
             quiz: true,
-          }
-        }
+          },
+        },
       },
     });
 
@@ -114,12 +117,14 @@ export class RoomsService {
       if (usersResponse.status < 400) {
         room["users"] = usersResponse.data;
 
-        const userRegistry = usersResponse.data.reduce((dict, user) => ((dict[user.id] = user), dict), {});
-        
+        const userRegistry = usersResponse.data.reduce(
+          (dict, user) => ((dict[user.id] = user), dict),
+          {}
+        );
+
         room.records.forEach((record) => {
-            const user = userRegistry[record.userId];
-            if (user)
-                record["user"] = user;
+          const user = userRegistry[record.userId];
+          if (user) record["user"] = user;
         });
       } else {
         console.error("Get data failed", usersResponse.status);
@@ -132,7 +137,7 @@ export class RoomsService {
 
   async getByCode(
     code: string,
-    token?: string, 
+    token?: string,
     include?: Prisma.RoomInclude<DefaultArgs>
   ): Promise<
     Prisma.RoomGetPayload<{
@@ -153,16 +158,16 @@ export class RoomsService {
       include: {
         currentQuiz: {
           include: {
-            answers: true
-          }
+            answers: true,
+          },
         },
         quizCollection: true,
         records: {
           include: {
             answer: true,
             quiz: true,
-          }
-        }
+          },
+        },
       },
     });
 
@@ -201,12 +206,14 @@ export class RoomsService {
       if (usersResponse.status < 400) {
         room["users"] = usersResponse.data;
 
-        const userRegistry = usersResponse.data.reduce((dict, user) => ((dict[user.id] = user), dict), {});
-        
+        const userRegistry = usersResponse.data.reduce(
+          (dict, user) => ((dict[user.id] = user), dict),
+          {}
+        );
+
         room.records.forEach((record) => {
-            const user = userRegistry[record.userId];
-            if (user)
-                record["user"] = user;
+          const user = userRegistry[record.userId];
+          if (user) record["user"] = user;
         });
       } else {
         console.error("Get data failed", usersResponse.status);
@@ -274,6 +281,7 @@ export class RoomsService {
           dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
           dataToUpdate.currentQuizId = null;
+          dataToUpdate.isStarted = false;
         }
       }
     }
@@ -294,7 +302,7 @@ export class RoomsService {
       isStarted: true,
       startedAt: new Date(),
     };
-    
+
     if (room.quizCollectionId) {
       const quizzes = await this.prisma.quizToQuizCollection.findMany({
         where: {
@@ -321,6 +329,7 @@ export class RoomsService {
           dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
           dataToUpdate.currentQuizId = null;
+          dataToUpdate.isStarted = false;
         }
       }
     }
