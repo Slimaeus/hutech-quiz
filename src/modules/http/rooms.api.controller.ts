@@ -100,6 +100,18 @@ class RoomsController {
   }
 
   @OnUndefined(204)
+  @Patch("/:roomId/pause")
+  async pauseRoom(@Param("roomId") roomId: string) {
+    const room = await this.roomsService.get(roomId);
+    const roomCode = room.code;
+    if (!roomCode) return;
+    await this.roomsService.pause(roomId);
+    this.websocket
+      .of(QuizzesSocketController.namespace)
+      .emit(RoomsEvents.PAUSED_ROOM, roomCode);
+  }
+
+  @OnUndefined(204)
   @Patch("/code/:code/start")
   async startRoomByCode(@Param("code") code: string) {
     await this.roomsService.startByCode(code);
@@ -117,6 +129,16 @@ class RoomsController {
       .of(QuizzesSocketController.namespace)
       .to(code)
       .emit(RoomsEvents.ENDED_ROOM, code);
+  }
+
+  @OnUndefined(204)
+  @Patch("code/:code/pause")
+  async pauseRoomByCode(@Param("code") code: string) {
+    await this.roomsService.pauseByCode(code);
+    this.websocket
+      .of(QuizzesSocketController.namespace)
+      .to(code)
+      .emit(RoomsEvents.PAUSED_ROOM, code);
   }
 
   @OnUndefined(204)
