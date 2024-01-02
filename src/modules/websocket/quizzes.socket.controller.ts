@@ -100,6 +100,7 @@ export class QuizzesSocketController {
     await this.roomsService.update(room.id, roomFormValues);
 
     socket.join(roomCode);
+    socket.emit(RoomsEvents.JOINED_ROOM, user);
     socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
     console.info(`User (${user.userName}) joined room ${roomCode}`);
   }
@@ -111,6 +112,7 @@ export class QuizzesSocketController {
   ) {
     const user = socket["user"] as User;
 
+    //
     const room = await this.roomsService.getByCode(roomCode);
 
     if (!room) return;
@@ -120,6 +122,9 @@ export class QuizzesSocketController {
       (x) => x !== user.id
     );
     await this.roomsService.update(room.id, roomFormValues);
+    //
+
+    await this.roomsService.leaveByCode(room.code, user.id);
 
     socket.leave(roomCode);
     socket.to(roomCode).emit(RoomsEvents.LEFT_ROOM, user);

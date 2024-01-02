@@ -286,4 +286,28 @@ export class RoomsService {
       },
     });
   }
+
+  async leave(roomId: string, userId: string) {
+    const room = await this.get(roomId);
+
+    if (!room) return;
+
+    const roomFormValues = RoomFormValues.toFormValues(room);
+    roomFormValues.userIds = roomFormValues.userIds.filter(
+      (x) => x !== userId
+    );
+    await this.update(room.id, roomFormValues);
+  }
+
+  async leaveByCode(code: string, userId: string) {
+    const room = await this.getByCode(code);
+
+    if (!room) return;
+
+    const roomFormValues = RoomFormValues.toFormValues(room);
+    roomFormValues.userIds = roomFormValues.userIds.filter(
+      (x) => x !== userId
+    );
+    await this.update(room.id, roomFormValues);
+  }
 }
