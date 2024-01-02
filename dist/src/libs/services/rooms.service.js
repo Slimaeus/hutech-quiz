@@ -71,7 +71,11 @@ let RoomsService = class RoomsService {
                     id: id,
                 },
                 include: {
-                    currentQuiz: true,
+                    currentQuiz: {
+                        include: {
+                            answers: true
+                        }
+                    },
                     quizCollection: true,
                     records: {
                         include: {
@@ -105,6 +109,12 @@ let RoomsService = class RoomsService {
                 });
                 if (usersResponse.status < 400) {
                     room["users"] = usersResponse.data;
+                    const userRegistry = usersResponse.data.reduce((dict, user) => ((dict[user.id] = user), dict), {});
+                    room.records.forEach((record) => {
+                        const user = userRegistry[record.userId];
+                        if (user)
+                            record["user"] = user;
+                    });
                 }
                 else {
                     console.error("Get data failed", usersResponse.status);
@@ -123,8 +133,8 @@ let RoomsService = class RoomsService {
                 include: {
                     currentQuiz: {
                         include: {
-                            answers: true,
-                        },
+                            answers: true
+                        }
                     },
                     quizCollection: true,
                     records: {
@@ -159,6 +169,12 @@ let RoomsService = class RoomsService {
                 });
                 if (usersResponse.status < 400) {
                     room["users"] = usersResponse.data;
+                    const userRegistry = usersResponse.data.reduce((dict, user) => ((dict[user.id] = user), dict), {});
+                    room.records.forEach((record) => {
+                        const user = userRegistry[record.userId];
+                        if (user)
+                            record["user"] = user;
+                    });
                 }
                 else {
                     console.error("Get data failed", usersResponse.status);
@@ -219,7 +235,7 @@ let RoomsService = class RoomsService {
                     const nextQuizIndex = currentQuizIndex + 1;
                     if (nextQuizIndex < quizzes.length) {
                         const nextQuiz = quizzes[nextQuizIndex];
-                        dataToUpdate.currentQuizId = nextQuiz.id;
+                        dataToUpdate.currentQuizId = nextQuiz.quizId;
                     }
                     else {
                         dataToUpdate.currentQuizId = null;
@@ -264,7 +280,7 @@ let RoomsService = class RoomsService {
                     const nextQuizIndex = currentQuizIndex + 1;
                     if (nextQuizIndex < quizzes.length) {
                         const nextQuiz = quizzes[nextQuizIndex];
-                        dataToUpdate.currentQuizId = nextQuiz.id;
+                        dataToUpdate.currentQuizId = nextQuiz.quizId;
                     }
                     else {
                         dataToUpdate.currentQuizId = null;

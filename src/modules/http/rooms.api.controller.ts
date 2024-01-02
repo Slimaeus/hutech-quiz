@@ -80,10 +80,12 @@ class RoomsController {
   async startRoom(@Param("roomId") roomId: string) {
     const room = await this.roomsService.get(roomId);
     const roomCode = room.code;
+    console.log(room)
     if (!roomCode) return;
     await this.roomsService.start(roomId);
     this.websocket
       .of(QuizzesSocketController.namespace)
+      .to(roomCode)
       .emit(RoomsEvents.STARTED_ROOM, roomCode);
   }
 
@@ -96,6 +98,7 @@ class RoomsController {
     await this.roomsService.end(roomId);
     this.websocket
       .of(QuizzesSocketController.namespace)
+      .to(roomCode)
       .emit(RoomsEvents.ENDED_ROOM, roomCode);
   }
 
@@ -108,6 +111,7 @@ class RoomsController {
     await this.roomsService.pause(roomId);
     this.websocket
       .of(QuizzesSocketController.namespace)
+      .to(roomCode)
       .emit(RoomsEvents.PAUSED_ROOM, roomCode);
   }
 

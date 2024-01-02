@@ -34,6 +34,7 @@ const quizCollections_service_1 = require("../../libs/services/quizCollections.s
 const quizzes_service_1 = require("../../libs/services/quizzes.service");
 const records_service_1 = require("../../libs/services/records.service");
 const record_1 = require("../../models/record");
+const client_1 = require("@prisma/client");
 let QuizzesSocketController = class QuizzesSocketController {
     constructor(roomsService, quizCollectionsService, quizzesService, recordsService) {
         this.roomsService = roomsService;
@@ -170,6 +171,21 @@ let QuizzesSocketController = class QuizzesSocketController {
             });
         });
     }
+    startedRoom(socket, roomCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('Wait 10 seconds');
+            const room = yield this.roomsService.getByCode(roomCode);
+            if (!room)
+                return;
+            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                const prismaClient = new client_1.PrismaClient();
+                const roomsService = new rooms_service_1.RoomsService(prismaClient);
+                yield roomsService.startByCode(roomCode);
+                socket.to(roomCode).emit(rooms_events_1.RoomsEvents.STARTED_ROOM, room.code);
+            }), 10000);
+            // await this.roomsService.startByCode(roomCode);
+        });
+    }
 };
 exports.QuizzesSocketController = QuizzesSocketController;
 QuizzesSocketController.namespace = "/hubs/quizzes";
@@ -237,6 +253,14 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, String, Object]),
     __metadata("design:returntype", Promise)
 ], QuizzesSocketController.prototype, "answerQuiz", null);
+__decorate([
+    (0, socket_controllers_1.OnMessage)(rooms_events_1.RoomsEvents.STARTED_ROOM),
+    __param(0, (0, socket_controllers_1.ConnectedSocket)()),
+    __param(1, (0, socket_controllers_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, String]),
+    __metadata("design:returntype", Promise)
+], QuizzesSocketController.prototype, "startedRoom", null);
 exports.QuizzesSocketController = QuizzesSocketController = __decorate([
     (0, socket_controllers_1.SocketController)(QuizzesSocketController.namespace),
     (0, typedi_1.Service)(),

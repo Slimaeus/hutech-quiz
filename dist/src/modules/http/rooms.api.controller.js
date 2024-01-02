@@ -67,11 +67,13 @@ let RoomsController = class RoomsController {
         return __awaiter(this, void 0, void 0, function* () {
             const room = yield this.roomsService.get(roomId);
             const roomCode = room.code;
+            console.log(room);
             if (!roomCode)
                 return;
             yield this.roomsService.start(roomId);
             this.websocket
                 .of(quizzes_socket_controller_1.QuizzesSocketController.namespace)
+                .to(roomCode)
                 .emit(rooms_events_1.RoomsEvents.STARTED_ROOM, roomCode);
         });
     }

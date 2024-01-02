@@ -27,13 +27,16 @@ let QuizCollectionsService = class QuizCollectionsService {
     }
     getMany(filter, include) {
         return this.prisma.quizCollection.findMany({
-            where: filter,
-            include: include,
+            where: Object.assign({}, filter),
+            include: Object.assign(Object.assign({}, include), { quizzes: true })
         });
     }
     get(id, filter, include) {
         return this.prisma.quizCollection.findFirst({
-            where: Object.assign({ id: id }, filter),
+            where: {
+                id: id,
+                // ...filter
+            },
             include: include
         });
     }

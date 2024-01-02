@@ -20,6 +20,7 @@ import { QuizzesService } from "../../libs/services/quizzes.service";
 import { User } from "../../models/user";
 import { RecordsService } from "../../libs/services/records.service";
 import { RecordFormValues } from "../../models/record";
+import { PrismaClient } from "@prisma/client";
 
 @SocketController(QuizzesSocketController.namespace)
 @Service()
@@ -59,8 +60,6 @@ export class QuizzesSocketController {
     if (!roomFormValues.userIds.includes(user.id))
       roomFormValues.userIds.push(user.id);
     await this.roomsService.update(room.id, roomFormValues);
-
-    console.log(roomFormValues)
 
     socket.join(roomCode);
 
@@ -145,6 +144,7 @@ export class QuizzesSocketController {
 
     await this.roomsService.start(room.id);
 
+    socket.emit(RoomsEvents.STARTED_ROOM, room.code);
     socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room.code);
     console.info(`User (${user.userName}) start room ${roomCode}`);
   }
@@ -217,10 +217,22 @@ export class QuizzesSocketController {
   }
 
   // @OnMessage(RoomsEvents.STARTED_ROOM)
-  // async startedRoom(@MessageBody() roomCode : string) {
-
+  // async startedRoom(
+  //   @ConnectedSocket() socket: Socket,
+  //   @MessageBody() roomCode: string
+  // ) {
+  //   console.log('Wait 10 seconds')
   //   const room = await this.roomsService.getByCode(roomCode);
 
   //   if (!room) return;
+
+  //   setTimeout(async () => {
+  //     const prismaClient = new PrismaClient();
+  //     const roomsService = new RoomsService(prismaClient); 
+  //     await roomsService.startByCode(roomCode);
+  //     socket.to(roomCode).emit(RoomsEvents.STARTED_ROOM, room.code);
+  // }, 10000);
+
+  //   // await this.roomsService.startByCode(roomCode);
   // }
 }
