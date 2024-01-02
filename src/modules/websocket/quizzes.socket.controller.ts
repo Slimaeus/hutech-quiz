@@ -74,6 +74,7 @@ export class QuizzesSocketController {
 
     socket.emit(QuizzesEvents.LOADED_QUIZZES, quizzes);
 
+    socket.emit(RoomsEvents.JOINED_ROOM, user);
     socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
     console.info(`User (${user.userName}) joined room ${roomCode}`);
   }
