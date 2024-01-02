@@ -70,7 +70,7 @@ export class QuizzesSocketController {
       },
     });
 
-    socket.to(roomCode).emit(QuizzesEvents.LOADED_QUIZZES, quizzes);
+    socket.emit(QuizzesEvents.LOADED_QUIZZES, quizzes);
 
     socket.to(roomCode).emit(RoomsEvents.JOINED_ROOM, user);
     console.info(`User (${user.userName}) joined room ${roomCode}`);
