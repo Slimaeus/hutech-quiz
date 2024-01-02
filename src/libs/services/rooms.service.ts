@@ -29,9 +29,11 @@ export class RoomsService {
 
     if (ownerIds.length > 0 && token) {
       const usersResponse = await axios.get<User[]>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map(
-          (id) => `userIds=${id}&`
-        ).join('')}`,
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${ownerIds
+          .filter((id, index, self) => self.indexOf(id) === index)
+          .filter((id) => id)
+          .map((id) => `userIds=${id}&`)
+          .join("")}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -53,7 +55,7 @@ export class RoomsService {
         // throw new UnauthorizedError();
       }
     }
-    
+
     return rooms;
   }
 
@@ -86,9 +88,11 @@ export class RoomsService {
       }
 
       const usersResponse = await axios.get<User[]>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map(
-          (id) => `userIds=${id}&`
-        ).join('')}`,
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds
+          .filter((id, index, self) => self.indexOf(id) === index)
+          .filter((id) => id)
+          .map((id) => `userIds=${id}&`)
+          .join("")}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,9 +158,11 @@ export class RoomsService {
       }
 
       const usersResponse = await axios.get<User>(
-        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map(
-          (id) => `userIds=${id}&`
-        ).join('')}`,
+        `${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds
+          .filter((id, index, self) => self.indexOf(id) === index)
+          .filter((id) => id)
+          .map((id) => `userIds=${id}&`)
+          .join("")}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -207,7 +213,7 @@ export class RoomsService {
     };
 
     if (room.quizCollectionId) {
-      const firstQuiz = await this.prisma.quizToQuizCollection.findFirst({
+      const quizzes = await this.prisma.quizToQuizCollection.findMany({
         where: {
           quizCollectionId: room.quizCollectionId,
         },
@@ -216,8 +222,23 @@ export class RoomsService {
         },
       });
 
-      if (firstQuiz) {
-        dataToUpdate.currentQuizId = firstQuiz.quizId;
+      const currentQuizIndex = quizzes.findIndex(
+        (x) => x.quizId === room.currentQuizId
+      );
+
+      if (currentQuizIndex !== -1 && !currentQuizIndex) {
+        const firstQuiz = quizzes[0];
+        if (firstQuiz) {
+          dataToUpdate.currentQuizId = firstQuiz.quizId;
+        }
+      } else {
+        const nextQuizIndex = currentQuizIndex + 1;
+        if (nextQuizIndex < quizzes.length) {
+          const nextQuiz = quizzes[nextQuizIndex];
+          dataToUpdate.currentQuizId = nextQuiz.id;
+        } else {
+          dataToUpdate.currentQuizId = null;
+        }
       }
     }
 
@@ -237,8 +258,9 @@ export class RoomsService {
       isStarted: true,
       startedAt: new Date(),
     };
+    
     if (room.quizCollectionId) {
-      const firstQuiz = await this.prisma.quizToQuizCollection.findFirst({
+      const quizzes = await this.prisma.quizToQuizCollection.findMany({
         where: {
           quizCollectionId: room.quizCollectionId,
         },
@@ -247,8 +269,23 @@ export class RoomsService {
         },
       });
 
-      if (firstQuiz) {
-        dataToUpdate.currentQuizId = firstQuiz.quizId;
+      const currentQuizIndex = quizzes.findIndex(
+        (x) => x.quizId === room.currentQuizId
+      );
+
+      if (currentQuizIndex !== -1 && !currentQuizIndex) {
+        const firstQuiz = quizzes[0];
+        if (firstQuiz) {
+          dataToUpdate.currentQuizId = firstQuiz.quizId;
+        }
+      } else {
+        const nextQuizIndex = currentQuizIndex + 1;
+        if (nextQuizIndex < quizzes.length) {
+          const nextQuiz = quizzes[nextQuizIndex];
+          dataToUpdate.currentQuizId = nextQuiz.id;
+        } else {
+          dataToUpdate.currentQuizId = null;
+        }
       }
     }
 
@@ -293,9 +330,7 @@ export class RoomsService {
     if (!room) return;
 
     const roomFormValues = RoomFormValues.toFormValues(room);
-    roomFormValues.userIds = roomFormValues.userIds.filter(
-      (x) => x !== userId
-    );
+    roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== userId);
     await this.update(room.id, roomFormValues);
   }
 
@@ -305,9 +340,7 @@ export class RoomsService {
     if (!room) return;
 
     const roomFormValues = RoomFormValues.toFormValues(room);
-    roomFormValues.userIds = roomFormValues.userIds.filter(
-      (x) => x !== userId
-    );
+    roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== userId);
     await this.update(room.id, roomFormValues);
   }
 }

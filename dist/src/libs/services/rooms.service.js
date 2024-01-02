@@ -23,6 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoomsService = void 0;
 const client_1 = require("@prisma/client");
+const room_1 = require("../../models/room");
 const typedi_1 = require("typedi");
 const axios_1 = __importDefault(require("axios"));
 let RoomsService = class RoomsService {
@@ -83,7 +84,7 @@ let RoomsService = class RoomsService {
                     console.error("Get data failed", ownerResponse.status);
                     // throw new UnauthorizedError();
                 }
-                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`, {
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map((id) => `userIds=${id}&`).join('')}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -127,7 +128,7 @@ let RoomsService = class RoomsService {
                     console.error("Get data failed", ownerResponse.status);
                     // throw new UnauthorizedError();
                 }
-                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.map((id) => `userIds=${id}&`)}`, {
+                const usersResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users?${room.userIds.filter((id, index, self) => self.indexOf(id) === index).filter(id => id).map((id) => `userIds=${id}&`).join('')}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -175,7 +176,7 @@ let RoomsService = class RoomsService {
                 startedAt: new Date(),
             };
             if (room.quizCollectionId) {
-                const firstQuiz = yield this.prisma.quizToQuizCollection.findFirst({
+                const quizzes = yield this.prisma.quizToQuizCollection.findMany({
                     where: {
                         quizCollectionId: room.quizCollectionId,
                     },
@@ -183,8 +184,19 @@ let RoomsService = class RoomsService {
                         id: "asc",
                     },
                 });
-                if (firstQuiz) {
-                    dataToUpdate.currentQuizId = firstQuiz.quizId;
+                const currentQuizIndex = quizzes.findIndex(x => x.id === room.currentQuizId);
+                if (currentQuizIndex === -1) {
+                    const firstQuiz = quizzes[0];
+                    if (firstQuiz) {
+                        dataToUpdate.currentQuizId = firstQuiz.quizId;
+                    }
+                }
+                else {
+                    const nextQuizIndex = currentQuizIndex + 1;
+                    if (nextQuizIndex < quizzes.length) {
+                        const nextQuiz = quizzes[nextQuizIndex];
+                        dataToUpdate.currentQuizId = nextQuiz.id;
+                    }
                 }
             }
             // Start the room and set the current quiz
@@ -253,6 +265,26 @@ let RoomsService = class RoomsService {
                     currentQuizId: null,
                 },
             });
+        });
+    }
+    leave(roomId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.get(roomId);
+            if (!room)
+                return;
+            const roomFormValues = room_1.RoomFormValues.toFormValues(room);
+            roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== userId);
+            yield this.update(room.id, roomFormValues);
+        });
+    }
+    leaveByCode(code, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const room = yield this.getByCode(code);
+            if (!room)
+                return;
+            const roomFormValues = room_1.RoomFormValues.toFormValues(room);
+            roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== userId);
+            yield this.update(room.id, roomFormValues);
         });
     }
 };

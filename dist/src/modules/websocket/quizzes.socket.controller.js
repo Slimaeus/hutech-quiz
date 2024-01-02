@@ -69,6 +69,7 @@ let QuizzesSocketController = class QuizzesSocketController {
                 },
             });
             socket.emit(quizzes_events_1.QuizzesEvents.LOADED_QUIZZES, quizzes);
+            socket.emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             console.info(`User (${user.userName}) joined room ${roomCode}`);
         });
@@ -87,6 +88,7 @@ let QuizzesSocketController = class QuizzesSocketController {
                 roomFormValues.userIds.push(user.id);
             yield this.roomsService.update(room.id, roomFormValues);
             socket.join(roomCode);
+            socket.emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             console.info(`User (${user.userName}) joined room ${roomCode}`);
         });
@@ -94,12 +96,15 @@ let QuizzesSocketController = class QuizzesSocketController {
     leaveRoom(socket, { roomCode }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = socket["user"];
+            //
             const room = yield this.roomsService.getByCode(roomCode);
             if (!room)
                 return;
             const roomFormValues = room_1.RoomFormValues.toFormValues(room);
             roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== user.id);
             yield this.roomsService.update(room.id, roomFormValues);
+            //
+            yield this.roomsService.leaveByCode(room.code, user.id);
             socket.leave(roomCode);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.LEFT_ROOM, user);
             console.info(`User (${user.userName}) left room ${roomCode}`);
