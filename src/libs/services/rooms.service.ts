@@ -275,6 +275,7 @@ export class RoomsService {
         const firstQuiz = quizzes[0];
         if (firstQuiz) {
           this.clearRecord(id);
+          dataToUpdate.currentQuizId = null;
           dataToUpdate.currentQuizId = firstQuiz.quizId;
         }
       } else {
@@ -323,6 +324,7 @@ export class RoomsService {
       if (currentQuizIndex === -1 || !room.currentQuizId) {
         const firstQuiz = quizzes[0];
         if (firstQuiz) {
+          this.clearRecord(room.id);
           dataToUpdate.currentQuizId = null;
           dataToUpdate.currentQuizId = firstQuiz.quizId;
         }
@@ -332,7 +334,6 @@ export class RoomsService {
           const nextQuiz = quizzes[nextQuizIndex];
           dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
-          this.clearRecord(room.id);
           dataToUpdate.isStarted = false;
         }
       }
