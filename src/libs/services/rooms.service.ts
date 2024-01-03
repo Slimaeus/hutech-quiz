@@ -414,4 +414,28 @@ export class RoomsService {
     roomFormValues.userIds = roomFormValues.userIds.filter((x) => x !== userId);
     await this.update(room.id, roomFormValues);
   }
+
+  async clearRecord(id: string) {
+    const room = await this.get(id);
+
+    if (!room) return;
+
+    return await this.prisma.record.deleteMany({
+      where: {
+        roomId: id
+      }
+    })
+  }
+
+  async clearRecordByCode(code: string) {
+    const room = await this.get(code);
+
+    if (!room) return;
+
+    return await this.prisma.record.deleteMany({
+      where: {
+        roomId: room.id
+      }
+    })
+  }
 }

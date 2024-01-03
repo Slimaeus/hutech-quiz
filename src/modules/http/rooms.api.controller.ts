@@ -60,6 +60,20 @@ class RoomsController {
     return this.roomsService.getByCode(code);
   }
 
+  @HttpCode(200)
+  @Delete("/:roomId/clearRecords")
+  clearRoomRecords(
+    @Param("roomId") roomId: string
+  ) {
+    return this.roomsService.clearRecord(roomId);
+  }
+
+  @HttpCode(200)
+  @Get("/code/:code/clearRecords")
+  clearRoomRecordsByCode(@Param("code") code: string) {
+    return this.roomsService.clearRecordByCode(code);
+  }
+
   @Authorized()
   @HttpCode(201)
   @Post()
