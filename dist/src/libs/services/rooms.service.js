@@ -73,16 +73,16 @@ let RoomsService = class RoomsService {
                 include: {
                     currentQuiz: {
                         include: {
-                            answers: true
-                        }
+                            answers: true,
+                        },
                     },
                     quizCollection: true,
                     records: {
                         include: {
                             answer: true,
                             quiz: true,
-                        }
-                    }
+                        },
+                    },
                 },
             });
             if (room.ownerId && token) {
@@ -133,18 +133,20 @@ let RoomsService = class RoomsService {
                 include: {
                     currentQuiz: {
                         include: {
-                            answers: true
-                        }
+                            answers: true,
+                        },
                     },
                     quizCollection: true,
                     records: {
                         include: {
                             answer: true,
                             quiz: true,
-                        }
-                    }
+                        },
+                    },
                 },
             });
+            if (!room)
+                return null;
             if (room.ownerId && token) {
                 const ownerResponse = yield axios_1.default.get(`${process.env.HUTECH_CLASSROOM_BASE_URL}v1/Users/${room.ownerId}`, {
                     headers: {
@@ -225,7 +227,7 @@ let RoomsService = class RoomsService {
                     },
                 });
                 const currentQuizIndex = quizzes.findIndex((x) => x.quizId === room.currentQuizId);
-                if (currentQuizIndex !== -1 && !currentQuizIndex) {
+                if (currentQuizIndex === -1 || !room.currentQuizId) {
                     const firstQuiz = quizzes[0];
                     if (firstQuiz) {
                         dataToUpdate.currentQuizId = firstQuiz.quizId;
@@ -239,6 +241,7 @@ let RoomsService = class RoomsService {
                     }
                     else {
                         dataToUpdate.currentQuizId = null;
+                        dataToUpdate.isStarted = false;
                     }
                 }
             }
@@ -270,7 +273,7 @@ let RoomsService = class RoomsService {
                     },
                 });
                 const currentQuizIndex = quizzes.findIndex((x) => x.quizId === room.currentQuizId);
-                if (currentQuizIndex !== -1 && !currentQuizIndex) {
+                if (currentQuizIndex === -1 || !room.currentQuizId) {
                     const firstQuiz = quizzes[0];
                     if (firstQuiz) {
                         dataToUpdate.currentQuizId = firstQuiz.quizId;
@@ -284,6 +287,7 @@ let RoomsService = class RoomsService {
                     }
                     else {
                         dataToUpdate.currentQuizId = null;
+                        dataToUpdate.isStarted = false;
                     }
                 }
             }
