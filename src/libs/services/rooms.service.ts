@@ -250,7 +250,7 @@ export class RoomsService {
     const room = await this.get(id);
     if (!room) return;
 
-    this.clearRecord(id)
+    this.clearRecord(id);
 
     const dataToUpdate: Prisma.RoomUncheckedUpdateInput = {
       isStarted: true,
@@ -274,6 +274,7 @@ export class RoomsService {
       if (currentQuizIndex === -1 || !room.currentQuizId) {
         const firstQuiz = quizzes[0];
         if (firstQuiz) {
+          this.clearRecord(id);
           dataToUpdate.currentQuizId = firstQuiz.quizId;
         }
       } else {
@@ -282,13 +283,11 @@ export class RoomsService {
           const nextQuiz = quizzes[nextQuizIndex];
           dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
-          this.clearRecord(id)
           dataToUpdate.currentQuizId = null;
           dataToUpdate.isStarted = false;
         }
       }
     }
-
 
     // Start the room and set the current quiz
     await this.prisma.room.update({
@@ -324,6 +323,7 @@ export class RoomsService {
       if (currentQuizIndex === -1 || !room.currentQuizId) {
         const firstQuiz = quizzes[0];
         if (firstQuiz) {
+          dataToUpdate.currentQuizId = null;
           dataToUpdate.currentQuizId = firstQuiz.quizId;
         }
       } else {
@@ -332,13 +332,11 @@ export class RoomsService {
           const nextQuiz = quizzes[nextQuizIndex];
           dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
-          this.clearRecord(room.id)
-          dataToUpdate.currentQuizId = null;
+          this.clearRecord(room.id);
           dataToUpdate.isStarted = false;
         }
       }
     }
-
 
     // Start the room and set the current quiz
     await this.prisma.room.update({
@@ -428,9 +426,9 @@ export class RoomsService {
 
     return await this.prisma.record.deleteMany({
       where: {
-        roomId: id
-      }
-    })
+        roomId: id,
+      },
+    });
   }
 
   async clearRecordByCode(code: string) {
@@ -440,8 +438,8 @@ export class RoomsService {
 
     return await this.prisma.record.deleteMany({
       where: {
-        roomId: room.id
-      }
-    })
+        roomId: room.id,
+      },
+    });
   }
 }
