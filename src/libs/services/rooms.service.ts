@@ -282,13 +282,13 @@ export class RoomsService {
           const nextQuiz = quizzes[nextQuizIndex];
           dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
+          this.clearRecord(id)
           dataToUpdate.currentQuizId = null;
           dataToUpdate.isStarted = false;
         }
       }
     }
 
-    this.clearRecord(id)
 
     // Start the room and set the current quiz
     await this.prisma.room.update({
@@ -332,13 +332,13 @@ export class RoomsService {
           const nextQuiz = quizzes[nextQuizIndex];
           dataToUpdate.currentQuizId = nextQuiz.quizId;
         } else {
+          this.clearRecord(room.id)
           dataToUpdate.currentQuizId = null;
           dataToUpdate.isStarted = false;
         }
       }
     }
 
-    this.clearRecord(room.id)
 
     // Start the room and set the current quiz
     await this.prisma.room.update({
