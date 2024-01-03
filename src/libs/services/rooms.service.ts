@@ -250,8 +250,6 @@ export class RoomsService {
     const room = await this.get(id);
     if (!room) return;
 
-    this.clearRecord(id);
-
     const dataToUpdate: Prisma.RoomUncheckedUpdateInput = {
       isStarted: true,
       startedAt: new Date(),
