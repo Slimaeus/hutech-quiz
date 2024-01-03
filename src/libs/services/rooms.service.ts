@@ -250,6 +250,8 @@ export class RoomsService {
     const room = await this.get(id);
     if (!room) return;
 
+    this.clearRecord(id)
+
     const dataToUpdate: Prisma.RoomUncheckedUpdateInput = {
       isStarted: true,
       startedAt: new Date(),
@@ -285,6 +287,8 @@ export class RoomsService {
         }
       }
     }
+
+    this.clearRecord(id)
 
     // Start the room and set the current quiz
     await this.prisma.room.update({
@@ -333,6 +337,8 @@ export class RoomsService {
         }
       }
     }
+
+    this.clearRecord(room.id)
 
     // Start the room and set the current quiz
     await this.prisma.room.update({

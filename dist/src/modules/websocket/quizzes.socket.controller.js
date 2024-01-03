@@ -87,7 +87,7 @@ let QuizzesSocketController = class QuizzesSocketController {
                 roomFormValues.userIds.push(user.id);
             yield this.roomsService.update(room.id, roomFormValues);
             socket.join(roomCode);
-            socket.emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
+            // socket.emit(RoomsEvents.JOINED_ROOM, user);
             socket.to(roomCode).emit(rooms_events_1.RoomsEvents.JOINED_ROOM, user);
             console.info(`User (${user.userName}) joined room ${roomCode}`);
         });

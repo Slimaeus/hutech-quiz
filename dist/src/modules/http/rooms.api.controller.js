@@ -55,6 +55,12 @@ let RoomsController = class RoomsController {
             return this.roomsService.getByCode(code, token.split(" ")[1]);
         return this.roomsService.getByCode(code);
     }
+    clearRoomRecords(roomId) {
+        return this.roomsService.clearRecord(roomId);
+    }
+    clearRoomRecordsByCode(code) {
+        return this.roomsService.clearRecordByCode(code);
+    }
     insertRoom(roomFormValues, user) {
         const code = randomstring_1.default.generate({
             length: 6,
@@ -164,6 +170,22 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], RoomsController.prototype, "getRoomByCode", null);
+__decorate([
+    (0, routing_controllers_1.HttpCode)(200),
+    (0, routing_controllers_1.Delete)("/:roomId/clearRecords"),
+    __param(0, (0, routing_controllers_1.Param)("roomId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], RoomsController.prototype, "clearRoomRecords", null);
+__decorate([
+    (0, routing_controllers_1.HttpCode)(200),
+    (0, routing_controllers_1.Get)("/code/:code/clearRecords"),
+    __param(0, (0, routing_controllers_1.Param)("code")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], RoomsController.prototype, "clearRoomRecordsByCode", null);
 __decorate([
     (0, routing_controllers_1.Authorized)(),
     (0, routing_controllers_1.HttpCode)(201),
