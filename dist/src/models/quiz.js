@@ -25,7 +25,7 @@ exports.QuizFormValues = void 0;
 class QuizFormValues {
     constructor() {
         this.score = 0;
-        // answers: Answer[];
+        this.answers = [];
     }
 }
 exports.QuizFormValues = QuizFormValues;

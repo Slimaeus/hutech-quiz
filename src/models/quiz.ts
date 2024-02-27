@@ -1,5 +1,7 @@
 // import { Answer } from "./answer";
 
+import { Answer, Prisma } from "@prisma/client";
+
 // export interface Quiz {
 //   content: string;
 //   explaination: string;
@@ -27,5 +29,5 @@ export class QuizFormValues {
   content: string;
   explaination: string;
   score: number = 0;
-  // answers: Answer[];
+  answers: Prisma.AnswerCreateManyQuizInput[] = [];
 }

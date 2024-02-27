@@ -213,7 +213,6 @@ let RoomsService = class RoomsService {
             const room = yield this.get(id);
             if (!room)
                 return;
-            this.clearRecord(id);
             const dataToUpdate = {
                 isStarted: true,
                 startedAt: new Date(),
@@ -231,6 +230,8 @@ let RoomsService = class RoomsService {
                 if (currentQuizIndex === -1 || !room.currentQuizId) {
                     const firstQuiz = quizzes[0];
                     if (firstQuiz) {
+                        this.clearRecord(id);
+                        dataToUpdate.currentQuizId = null;
                         dataToUpdate.currentQuizId = firstQuiz.quizId;
                     }
                 }
@@ -246,7 +247,6 @@ let RoomsService = class RoomsService {
                     }
                 }
             }
-            this.clearRecord(id);
             // Start the room and set the current quiz
             yield this.prisma.room.update({
                 where: {
@@ -278,6 +278,8 @@ let RoomsService = class RoomsService {
                 if (currentQuizIndex === -1 || !room.currentQuizId) {
                     const firstQuiz = quizzes[0];
                     if (firstQuiz) {
+                        this.clearRecord(room.id);
+                        dataToUpdate.currentQuizId = null;
                         dataToUpdate.currentQuizId = firstQuiz.quizId;
                     }
                 }
@@ -288,12 +290,10 @@ let RoomsService = class RoomsService {
                         dataToUpdate.currentQuizId = nextQuiz.quizId;
                     }
                     else {
-                        dataToUpdate.currentQuizId = null;
                         dataToUpdate.isStarted = false;
                     }
                 }
             }
-            this.clearRecord(room.id);
             // Start the room and set the current quiz
             yield this.prisma.room.update({
                 where: {
@@ -386,8 +386,8 @@ let RoomsService = class RoomsService {
                 return;
             return yield this.prisma.record.deleteMany({
                 where: {
-                    roomId: id
-                }
+                    roomId: id,
+                },
             });
         });
     }
@@ -398,8 +398,8 @@ let RoomsService = class RoomsService {
                 return;
             return yield this.prisma.record.deleteMany({
                 where: {
-                    roomId: room.id
-                }
+                    roomId: room.id,
+                },
             });
         });
     }

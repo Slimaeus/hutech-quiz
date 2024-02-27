@@ -41,6 +41,19 @@ class QuizzesController {
     return this.quizzesService.create(quizFormValues);
   }
 
+  @HttpCode(200)
+  @Post("many")
+  insertQuizzes(@Body() quizzes: Array<any>) {
+    quizzes.forEach(async (e) => {
+      const formValues = new QuizFormValues();
+      formValues.content = e.content;
+      formValues.explaination = e.explaination;
+      formValues.score = 1;
+      formValues.answers = e.answers;
+      await this.quizzesService.create(formValues);
+    });
+  }
+
   @OnUndefined(204)
   @Put("/:quizId")
   updateQuiz(

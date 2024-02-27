@@ -23,17 +23,26 @@ export class QuizzesService {
   }
 
   create(data: QuizFormValues) : Promise<Quiz> {
+    const { answers, ...rest} = data;
     return this.prisma.quiz.create({
-      data: data,
+      data: {
+        ...rest,
+        answers: {
+          createMany: {
+            data: answers 
+          }
+        }
+      } 
     });
   }
 
   async update(id: string, data: QuizFormValues) : Promise<void> {
+    const { answers, ...rest} = data;
     await this.prisma.quiz.update({
       where: {
         id: id,
       },
-      data: data,
+      data: rest,
     });
   }
 
