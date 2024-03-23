@@ -94,7 +94,7 @@ let GenerateController = class GenerateController {
             const model = genAI.getGenerativeModel({ model: "gemini-pro" });
             const prompt = `Sinh cho tôi chính xác ${quizCount} câu đố trắc nghiệm (quiz) về ${topic} có chính xác ${answerCount} câu trả lời cho mỗi câu đố với đúng ${correctAnswerText} câu trả lời đúng trong mỗi câu.
     Cũng như tạo cho tôi một câu giải thích (explaination) hợp lý cho đáp án đúng.
-    Nhưng bạn cần phải trả lời dưới dạng 1 JSON của câu đố! Cũng KHÔNG được dùng json markdown tức không bao giờ được có chuỗi này ""\`\`\`"" cũng như không bắt đầu bằng ""\`\`\`json"" và sử dụng \\" thay vì " . Nếu chỉ có 1 câu đố vẫn phải để trong mảng!
+    Nhưng bạn cần phải trả lời dưới dạng 1 JSON của câu đố! Cũng KHÔNG được dùng json markdown tức không bao giờ được có chuỗi này ""\`\`\`"" cũng như không bắt đầu bằng ""\`\`\`json"" và SỬ DỤNG nháy đơn ' thay vì nháy kép " cho các phần nhấn mạnh, tên riêng bên trong nội dung (content) của câu hỏi, giải thich và câu trả lời. !!! ĐỪNG THAY THẾ ' CHO " TRONG CÁC TRƯỜNG JSON, VẪN SỬ DỤNG DẤU " CHO CÁC PHẦN CỦA JSON . Nếu chỉ có 1 câu đố vẫn phải để trong mảng!
     Ví dụ:
     [
         {{
