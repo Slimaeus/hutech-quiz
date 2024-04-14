@@ -52,6 +52,7 @@ class QuizzesController {
       formValues.answers = e.answers;
       await this.quizzesService.create(formValues);
     });
+    return quizzes;
   }
 
   @OnUndefined(204)
